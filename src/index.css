@@ -1,0 +1,279 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* RAPID CAPTURE - Brutalist Cyber Security Design System */
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+@layer base {
+  :root {
+    /* Core brutalist dark theme - terminal inspired */
+    --background: 0 0% 4%;
+    --foreground: 0 0% 95%;
+
+    /* Cards and surfaces */
+    --card: 0 0% 7%;
+    --card-foreground: 0 0% 95%;
+
+    --popover: 0 0% 7%;
+    --popover-foreground: 0 0% 95%;
+
+    /* Primary - cyber green */
+    --primary: 142 76% 45%;
+    --primary-foreground: 0 0% 4%;
+
+    /* Secondary - muted steel */
+    --secondary: 0 0% 14%;
+    --secondary-foreground: 0 0% 85%;
+
+    /* Muted surfaces */
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 55%;
+
+    /* Accent - warning amber */
+    --accent: 38 92% 50%;
+    --accent-foreground: 0 0% 4%;
+
+    /* Destructive - alert red */
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+
+    /* Success - confirmation green */
+    --success: 142 76% 45%;
+    --success-foreground: 0 0% 4%;
+
+    /* Warning */
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 4%;
+
+    /* Borders - sharp definition */
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 142 76% 45%;
+
+    --radius: 0px;
+
+    /* Sidebar */
+    --sidebar-background: 0 0% 6%;
+    --sidebar-foreground: 0 0% 85%;
+    --sidebar-primary: 142 76% 45%;
+    --sidebar-primary-foreground: 0 0% 4%;
+    --sidebar-accent: 0 0% 12%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 0 0% 15%;
+    --sidebar-ring: 142 76% 45%;
+
+    /* Custom cyber variables */
+    --cyber-glow: 0 0 20px hsl(142 76% 45% / 0.3);
+    --cyber-glow-red: 0 0 20px hsl(0 72% 51% / 0.3);
+    --cyber-glow-amber: 0 0 20px hsl(38 92% 50% / 0.3);
+    --terminal-green: 142 76% 45%;
+    --alert-red: 0 72% 51%;
+    --scan-line: linear-gradient(transparent 50%, rgba(0, 255, 65, 0.03) 50%);
+  }
+
+  .dark {
+    --background: 0 0% 4%;
+    --foreground: 0 0% 95%;
+    --card: 0 0% 7%;
+    --card-foreground: 0 0% 95%;
+    --popover: 0 0% 7%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 142 76% 45%;
+    --primary-foreground: 0 0% 4%;
+    --secondary: 0 0% 14%;
+    --secondary-foreground: 0 0% 85%;
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 55%;
+    --accent: 38 92% 50%;
+    --accent-foreground: 0 0% 4%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 142 76% 45%;
+    --sidebar-background: 0 0% 6%;
+    --sidebar-foreground: 0 0% 85%;
+    --sidebar-primary: 142 76% 45%;
+    --sidebar-primary-foreground: 0 0% 4%;
+    --sidebar-accent: 0 0% 12%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 0 0% 15%;
+    --sidebar-ring: 142 76% 45%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-mono antialiased;
+    font-family: 'JetBrains Mono', monospace;
+    background-image: var(--scan-line);
+    background-size: 100% 4px;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--background));
+    border-left: 1px solid hsl(var(--border));
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted));
+    border: 1px solid hsl(var(--border));
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground));
+  }
+}
+
+@layer utilities {
+  /* Cyber glow effects */
+  .cyber-glow {
+    box-shadow: var(--cyber-glow);
+  }
+
+  .cyber-glow-red {
+    box-shadow: var(--cyber-glow-red);
+  }
+
+  .cyber-glow-amber {
+    box-shadow: var(--cyber-glow-amber);
+  }
+
+  /* Terminal cursor blink */
+  .cursor-blink::after {
+    content: '▊';
+    animation: blink 1s step-end infinite;
+    color: hsl(var(--primary));
+  }
+
+  @keyframes blink {
+    50% { opacity: 0; }
+  }
+
+  /* Scan line animation */
+  .scan-line {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .scan-line::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.5), transparent);
+    animation: scan 3s linear infinite;
+  }
+
+  @keyframes scan {
+    0% { top: 0; }
+    100% { top: 100%; }
+  }
+
+  /* Typewriter effect */
+  .typewriter {
+    overflow: hidden;
+    white-space: nowrap;
+    animation: typing 2s steps(30, end);
+  }
+
+  @keyframes typing {
+    from { width: 0; }
+    to { width: 100%; }
+  }
+
+  /* Alert pulse */
+  .alert-pulse {
+    animation: pulse-alert 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-alert {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  /* Data stream animation */
+  .data-stream {
+    background: linear-gradient(
+      180deg,
+      transparent,
+      hsl(var(--primary) / 0.1) 50%,
+      transparent
+    );
+    background-size: 100% 200%;
+    animation: stream 2s linear infinite;
+  }
+
+  @keyframes stream {
+    0% { background-position: 0 0; }
+    100% { background-position: 0 200%; }
+  }
+}
+
+/* Brutalist component overrides */
+@layer components {
+  .brutalist-card {
+    @apply bg-card border-2 border-border p-4;
+    box-shadow: 4px 4px 0 hsl(var(--border));
+  }
+
+  .brutalist-card:hover {
+    box-shadow: 6px 6px 0 hsl(var(--primary) / 0.3);
+  }
+
+  .brutalist-button {
+    @apply border-2 border-border px-4 py-2 font-bold uppercase tracking-wider;
+    box-shadow: 3px 3px 0 hsl(var(--border));
+    transition: all 0.1s ease;
+  }
+
+  .brutalist-button:hover {
+    box-shadow: 1px 1px 0 hsl(var(--border));
+    transform: translate(2px, 2px);
+  }
+
+  .brutalist-button:active {
+    box-shadow: 0 0 0 hsl(var(--border));
+    transform: translate(3px, 3px);
+  }
+
+  .terminal-header {
+    @apply bg-muted border-b-2 border-border px-4 py-2 flex items-center gap-2;
+  }
+
+  .terminal-dot {
+    @apply w-3 h-3 border border-border;
+  }
+
+  .status-indicator {
+    @apply w-2 h-2 inline-block;
+  }
+
+  .status-indicator.online {
+    @apply bg-primary;
+    box-shadow: 0 0 8px hsl(var(--primary));
+  }
+
+  .status-indicator.offline {
+    @apply bg-destructive;
+    box-shadow: 0 0 8px hsl(var(--destructive));
+  }
+
+  .status-indicator.warning {
+    @apply bg-accent;
+    box-shadow: 0 0 8px hsl(var(--accent));
+  }
+}
