@@ -1,4 +1,4 @@
-# Welcome to your Lovable project
+# Welcome to Rapid Strike- Sim by Kaveesh
 
 ## Project info
 
