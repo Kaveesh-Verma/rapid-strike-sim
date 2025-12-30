@@ -1,10 +1,20 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Shield, BookOpen, BarChart3, Target, LogOut, AlertTriangle, Mail, Globe, Lock } from "lucide-react";
+import { Mail, Globe, Lock, AlertTriangle, Timer, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ATTACK_SCENARIOS, ACTION_LABELS, SCORING_RULES } from "@/lib/constants";
 import { useToast } from "@/hooks/use-toast";
+import Sidebar from "@/components/layout/Sidebar";
+import ScenarioCard from "@/components/scenarios/ScenarioCard";
+import ScenarioResult from "@/components/scenarios/ScenarioResult";
+
+interface AIAnalysis {
+  feedback: string;
+  tips: string[];
+  threat_level: string;
+  real_world_impact: string;
+}
 
 const Scenarios = () => {
   const navigate = useNavigate();
@@ -14,6 +24,10 @@ const Scenarios = () => {
   const [showResult, setShowResult] = useState(false);
   const [lastResult, setLastResult] = useState<{ correct: boolean; score: number; explanation: string } | null>(null);
   const [startTime, setStartTime] = useState<number>(0);
+  const [elapsedTime, setElapsedTime] = useState<number>(0);
+  const [completedScenarios, setCompletedScenarios] = useState<string[]>([]);
+  const [aiAnalysis, setAiAnalysis] = useState<AIAnalysis | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -21,16 +35,69 @@ const Scenarios = () => {
         navigate("/auth");
       } else {
         setUserId(session.user.id);
+        loadCompletedScenarios(session.user.id);
       }
     });
   }, [navigate]);
+
+  // Timer effect
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (currentScenario && !showResult) {
+      interval = setInterval(() => {
+        setElapsedTime(Math.floor((Date.now() - startTime) / 1000));
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [currentScenario, showResult, startTime]);
+
+  const loadCompletedScenarios = async (uid: string) => {
+    const { data } = await supabase
+      .from("user_attempts")
+      .select("scenario_id, is_correct")
+      .eq("user_id", uid);
+    
+    if (data) {
+      const completed = data.filter(d => d.is_correct).map(d => d.scenario_id);
+      setCompletedScenarios(completed);
+    }
+  };
 
   const startScenario = (scenario: typeof ATTACK_SCENARIOS[0]) => {
     setCurrentScenario(scenario);
     setShowResult(false);
     setLastResult(null);
+    setAiAnalysis(null);
     setStartTime(Date.now());
+    setElapsedTime(0);
   };
+
+  const getAIAnalysis = useCallback(async (scenario: typeof ATTACK_SCENARIOS[0], userAction: string, isCorrect: boolean, timeTaken: number) => {
+    setIsAnalyzing(true);
+    try {
+      const response = await supabase.functions.invoke('analyze-scenario', {
+        body: {
+          scenario: {
+            title: scenario.title,
+            type: scenario.type,
+            difficulty: scenario.difficulty,
+          },
+          userAction: ACTION_LABELS[userAction as keyof typeof ACTION_LABELS] || userAction,
+          correctAction: ACTION_LABELS[scenario.correct_action as keyof typeof ACTION_LABELS] || scenario.correct_action,
+          isCorrect,
+          timeTaken,
+        }
+      });
+
+      if (response.data) {
+        setAiAnalysis(response.data);
+      }
+    } catch (error) {
+      console.error('Error getting AI analysis:', error);
+    } finally {
+      setIsAnalyzing(false);
+    }
+  }, []);
 
   const handleAction = async (action: string) => {
     if (!currentScenario || !userId) return;
@@ -47,7 +114,7 @@ const Scenarios = () => {
     else if (isCorrect && timeTaken < 60) score += SCORING_RULES.time_bonus.medium;
 
     // Save attempt
-    await supabase.from("user_attempts").insert({
+    const { error: attemptError } = await supabase.from("user_attempts").insert({
       user_id: userId,
       scenario_id: currentScenario.scenario_id,
       selected_action: action,
@@ -56,19 +123,36 @@ const Scenarios = () => {
       time_taken_seconds: timeTaken,
     });
 
-    // Update profile stats
-    const { data: profile } = await supabase
+    if (attemptError) {
+      console.error('Error saving attempt:', attemptError);
+    }
+
+    // Update profile stats - fetch fresh data first
+    const { data: profile, error: profileError } = await supabase
       .from("profiles")
       .select("*")
       .eq("id", userId)
-      .single();
+      .maybeSingle();
+
+    if (profileError) {
+      console.error('Error fetching profile:', profileError);
+    }
 
     if (profile) {
-      await supabase.from("profiles").update({
+      const { error: updateError } = await supabase.from("profiles").update({
         total_score: (profile.total_score || 0) + score,
         scenarios_attempted: (profile.scenarios_attempted || 0) + 1,
         scenarios_correct: (profile.scenarios_correct || 0) + (isCorrect ? 1 : 0),
       }).eq("id", userId);
+
+      if (updateError) {
+        console.error('Error updating profile:', updateError);
+      }
+    }
+
+    // Update completed scenarios list
+    if (isCorrect && !completedScenarios.includes(currentScenario.scenario_id)) {
+      setCompletedScenarios([...completedScenarios, currentScenario.scenario_id]);
     }
 
     setLastResult({
@@ -79,10 +163,13 @@ const Scenarios = () => {
     setShowResult(true);
 
     toast({
-      title: isCorrect ? "CORRECT RESPONSE" : "INCORRECT RESPONSE",
-      description: `${score > 0 ? "+" : ""}${score} points`,
+      title: isCorrect ? "✓ CORRECT RESPONSE" : "✗ INCORRECT RESPONSE",
+      description: `${score > 0 ? "+" : ""}${score} points${isCorrect && timeTaken < 30 ? " (Fast response bonus!)" : ""}`,
       variant: isCorrect ? "default" : "destructive",
     });
+
+    // Get AI analysis asynchronously
+    getAIAnalysis(currentScenario, action, isCorrect, timeTaken);
   };
 
   const getActionsForScenario = (type: string) => {
@@ -96,79 +183,69 @@ const Scenarios = () => {
     return ["report_phishing", "ignore"];
   };
 
+  const goToNextScenario = () => {
+    const idx = ATTACK_SCENARIOS.findIndex(s => s.scenario_id === currentScenario?.scenario_id);
+    const next = ATTACK_SCENARIOS[(idx + 1) % ATTACK_SCENARIOS.length];
+    startScenario(next);
+  };
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
   return (
     <div className="min-h-screen bg-background flex">
-      {/* Sidebar */}
-      <aside className="w-64 border-r-2 border-border bg-sidebar p-4 flex flex-col">
-        <div className="flex items-center gap-3 mb-8 pb-4 border-b-2 border-border">
-          <Shield className="w-8 h-8 text-primary" />
-          <span className="font-bold uppercase tracking-wider">Rapid Capture</span>
-        </div>
+      <Sidebar />
 
-        <nav className="flex-1 space-y-2">
-          <button 
-            onClick={() => navigate("/dashboard")}
-            className="w-full flex items-center gap-3 px-4 py-3 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-          >
-            <BarChart3 className="w-5 h-5" />
-            <span className="uppercase text-sm tracking-wider">Dashboard</span>
-          </button>
-          <button 
-            onClick={() => navigate("/training")}
-            className="w-full flex items-center gap-3 px-4 py-3 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-          >
-            <BookOpen className="w-5 h-5" />
-            <span className="uppercase text-sm tracking-wider">Training</span>
-          </button>
-          <button className="w-full flex items-center gap-3 px-4 py-3 bg-muted text-foreground border-l-2 border-primary">
-            <Target className="w-5 h-5" />
-            <span className="uppercase text-sm tracking-wider">Scenarios</span>
-          </button>
-        </nav>
-
-        <button
-          onClick={() => supabase.auth.signOut().then(() => navigate("/"))}
-          className="flex items-center gap-3 px-4 py-3 text-muted-foreground hover:text-destructive transition-colors"
-        >
-          <LogOut className="w-5 h-5" />
-          <span className="uppercase text-sm tracking-wider">Logout</span>
-        </button>
-      </aside>
-
-      {/* Main Content */}
       <main className="flex-1 p-8 overflow-auto">
         {currentScenario ? (
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-4xl mx-auto animate-in fade-in duration-300">
             {showResult && lastResult ? (
-              <div className="border-2 border-border bg-card">
-                <div className={`p-6 border-b-2 ${lastResult.correct ? "border-primary bg-primary/10" : "border-destructive bg-destructive/10"}`}>
-                  <h2 className="text-2xl font-bold uppercase">
-                    {lastResult.correct ? "✓ Correct Response" : "✗ Incorrect Response"}
-                  </h2>
-                  <p className="text-lg mt-2">{lastResult.score > 0 ? "+" : ""}{lastResult.score} points</p>
-                </div>
-                <div className="p-6">
-                  <h3 className="font-bold uppercase mb-3">Explanation</h3>
-                  <p className="text-muted-foreground mb-6">{lastResult.explanation}</p>
-                  <div className="flex gap-4">
-                    <Button onClick={() => setCurrentScenario(null)}>Back to Scenarios</Button>
-                    <Button variant="outline" onClick={() => {
-                      const idx = ATTACK_SCENARIOS.findIndex(s => s.scenario_id === currentScenario.scenario_id);
-                      const next = ATTACK_SCENARIOS[(idx + 1) % ATTACK_SCENARIOS.length];
-                      startScenario(next);
-                    }}>Next Scenario</Button>
-                  </div>
-                </div>
-              </div>
+              <ScenarioResult
+                isCorrect={lastResult.correct}
+                score={lastResult.score}
+                explanation={lastResult.explanation}
+                aiAnalysis={aiAnalysis}
+                isAnalyzing={isAnalyzing}
+                onBack={() => setCurrentScenario(null)}
+                onNext={goToNextScenario}
+              />
             ) : (
               <>
+                {/* Scenario Header */}
                 <div className="mb-4 flex items-center justify-between">
-                  <span className="text-sm uppercase text-muted-foreground">
-                    {currentScenario.type} / {currentScenario.difficulty}
-                  </span>
-                  <Button variant="ghost" size="sm" onClick={() => setCurrentScenario(null)}>
-                    Exit Scenario
-                  </Button>
+                  <div className="flex items-center gap-4">
+                    <span className={`text-xs uppercase tracking-wider px-2 py-1 border ${
+                      currentScenario.difficulty === "easy" ? "border-primary/50 text-primary" :
+                      currentScenario.difficulty === "medium" ? "border-accent/50 text-accent" :
+                      "border-destructive/50 text-destructive"
+                    }`}>
+                      {currentScenario.difficulty}
+                    </span>
+                    <span className="text-sm uppercase text-muted-foreground">
+                      {currentScenario.type.replace('_', ' ')}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <Timer className="w-4 h-4" />
+                      <span className="font-mono text-sm">{formatTime(elapsedTime)}</span>
+                    </div>
+                    <Button variant="ghost" size="sm" onClick={() => setCurrentScenario(null)}>
+                      Exit
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Scenario Title */}
+                <div className="mb-6 p-4 border-l-2 border-primary bg-primary/5">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Shield className="w-4 h-4 text-primary" />
+                    <span className="text-xs uppercase text-primary">Active Scenario</span>
+                  </div>
+                  <h2 className="text-xl font-bold uppercase">{currentScenario.title}</h2>
                 </div>
 
                 {/* Scenario Display */}
@@ -177,20 +254,25 @@ const Scenarios = () => {
                     <>
                       <div className="bg-muted p-4 border-b-2 border-border flex items-center gap-3">
                         <Mail className="w-5 h-5 text-muted-foreground" />
-                        <span className="font-bold uppercase">Email Client</span>
+                        <span className="font-bold uppercase text-sm">Email Client</span>
+                        <div className="ml-auto flex gap-2">
+                          <div className="w-3 h-3 border border-muted-foreground" />
+                          <div className="w-3 h-3 border border-muted-foreground" />
+                          <div className="w-3 h-3 border border-destructive bg-destructive/30" />
+                        </div>
                       </div>
-                      <div className="p-4 border-b border-border text-sm">
+                      <div className="p-4 border-b border-border text-sm bg-muted/30">
                         <div className="grid grid-cols-[80px_1fr] gap-2">
                           <span className="text-muted-foreground">From:</span>
-                          <span>{currentScenario.content.from}</span>
+                          <span className="text-foreground">{currentScenario.content.from}</span>
                           <span className="text-muted-foreground">To:</span>
-                          <span>{currentScenario.content.to}</span>
+                          <span className="text-foreground">{currentScenario.content.to}</span>
                           <span className="text-muted-foreground">Subject:</span>
-                          <span className="font-bold">{currentScenario.content.subject}</span>
+                          <span className="font-bold text-foreground">{currentScenario.content.subject}</span>
                         </div>
                       </div>
                       <div className="p-6">
-                        <pre className="whitespace-pre-wrap font-mono text-sm">{currentScenario.content.body}</pre>
+                        <pre className="whitespace-pre-wrap font-mono text-sm leading-relaxed">{currentScenario.content.body}</pre>
                       </div>
                     </>
                   )}
@@ -199,9 +281,9 @@ const Scenarios = () => {
                     <>
                       <div className="bg-muted p-4 border-b-2 border-border flex items-center gap-3">
                         <Globe className="w-5 h-5 text-muted-foreground" />
-                        <span className="text-sm font-mono">{currentScenario.content.url}</span>
+                        <span className="text-sm font-mono flex-1 truncate">{currentScenario.content.url}</span>
                         {currentScenario.content.ssl_status === "valid" && (
-                          <Lock className="w-4 h-4 text-primary ml-auto" />
+                          <Lock className="w-4 h-4 text-primary" />
                         )}
                       </div>
                       <div className="p-8 flex flex-col items-center">
@@ -212,7 +294,7 @@ const Scenarios = () => {
                               {field}
                             </div>
                           ))}
-                          <div className="bg-primary/20 text-primary p-3 text-center font-bold uppercase">
+                          <div className="bg-primary/20 text-primary p-3 text-center font-bold uppercase border-2 border-primary">
                             Sign In
                           </div>
                         </div>
@@ -222,13 +304,13 @@ const Scenarios = () => {
 
                   {currentScenario.content.type === "popup" && (
                     <div className={`p-8 text-center ${currentScenario.content.background_color === "red" ? "bg-destructive/20" : "bg-muted"}`}>
-                      <AlertTriangle className="w-16 h-16 mx-auto mb-4 text-destructive" />
+                      <AlertTriangle className="w-16 h-16 mx-auto mb-4 text-destructive animate-pulse" />
                       <h2 className="text-2xl font-bold uppercase mb-4">{currentScenario.content.title}</h2>
                       <pre className="whitespace-pre-wrap text-sm text-left max-w-lg mx-auto mb-4">
                         {currentScenario.content.message}
                       </pre>
                       {currentScenario.content.timer && (
-                        <div className="text-2xl font-mono text-destructive">{currentScenario.content.timer}</div>
+                        <div className="text-2xl font-mono text-destructive animate-pulse">{currentScenario.content.timer}</div>
                       )}
                     </div>
                   )}
@@ -236,16 +318,19 @@ const Scenarios = () => {
 
                 {/* Actions */}
                 <div className="border-2 border-border bg-card p-6">
-                  <h3 className="font-bold uppercase mb-4">What would you do?</h3>
+                  <h3 className="font-bold uppercase mb-4 flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4 text-accent" />
+                    What would you do?
+                  </h3>
                   <div className="grid sm:grid-cols-2 gap-3">
                     {getActionsForScenario(currentScenario.type).map(action => (
                       <Button
                         key={action}
                         variant="outline"
-                        className="justify-start h-auto py-3"
+                        className="justify-start h-auto py-4 px-4 text-left hover:border-primary/50 transition-all"
                         onClick={() => handleAction(action)}
                       >
-                        {ACTION_LABELS[action as keyof typeof ACTION_LABELS]}
+                        <span className="text-sm">{ACTION_LABELS[action as keyof typeof ACTION_LABELS]}</span>
                       </Button>
                     ))}
                   </div>
@@ -254,34 +339,35 @@ const Scenarios = () => {
             )}
           </div>
         ) : (
-          <>
+          <div className="animate-in fade-in duration-300">
             <div className="mb-8">
               <h1 className="text-3xl font-bold uppercase tracking-wider mb-2">Attack Scenarios</h1>
-              <p className="text-muted-foreground">Select a scenario to test your skills</p>
+              <p className="text-muted-foreground">
+                Select a scenario to test your skills • {completedScenarios.length}/{ATTACK_SCENARIOS.length} completed
+              </p>
+            </div>
+
+            {/* Progress Bar */}
+            <div className="mb-6">
+              <div className="h-2 bg-muted border border-border">
+                <div 
+                  className="h-full bg-primary transition-all duration-500"
+                  style={{ width: `${(completedScenarios.length / ATTACK_SCENARIOS.length) * 100}%` }}
+                />
+              </div>
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
               {ATTACK_SCENARIOS.map(scenario => (
-                <button
+                <ScenarioCard
                   key={scenario.scenario_id}
+                  scenario={scenario}
                   onClick={() => startScenario(scenario)}
-                  className="border-2 border-border p-4 bg-card text-left hover:border-primary/50 transition-colors"
-                >
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className={`text-xs uppercase tracking-wider px-2 py-1 border ${
-                      scenario.difficulty === "easy" ? "border-primary/50 text-primary" :
-                      scenario.difficulty === "medium" ? "border-accent/50 text-accent" :
-                      "border-destructive/50 text-destructive"
-                    }`}>
-                      {scenario.difficulty}
-                    </span>
-                    <span className="text-xs uppercase text-muted-foreground">{scenario.type}</span>
-                  </div>
-                  <h3 className="font-bold uppercase text-sm">{scenario.title}</h3>
-                </button>
+                  completed={completedScenarios.includes(scenario.scenario_id)}
+                />
               ))}
             </div>
-          </>
+          </div>
         )}
       </main>
     </div>
