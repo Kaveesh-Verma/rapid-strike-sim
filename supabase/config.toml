@@ -1,1 +1,4 @@
 project_id = "ygnijjrmosdkprouepwh"
+
+[functions.analyze-scenario]
+verify_jwt = false
