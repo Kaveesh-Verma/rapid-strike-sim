@@ -65,50 +65,67 @@ Provide a brief, helpful analysis in JSON format with these exact fields:
 
 Be encouraging but educational. Keep it concise.`;
 
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    if (!LOVABLE_API_KEY) {
+      console.error('LOVABLE_API_KEY is not configured');
+      throw new Error('AI service not configured');
+    }
+
+    console.log('Calling Lovable AI Gateway...');
+
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${Deno.env.get('LOVABLE_API_KEY')}`,
+        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
         'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://lovable.dev',
-        'X-Title': 'Rapid Capture Security Trainer',
       },
       body: JSON.stringify({
         model: 'google/gemini-2.5-flash',
         messages: [
-          { role: 'system', content: 'You are a cybersecurity expert providing training feedback. Always respond with valid JSON only.' },
+          { role: 'system', content: 'You are a cybersecurity expert providing training feedback. Always respond with valid JSON only, no markdown formatting.' },
           { role: 'user', content: prompt }
         ],
-        response_format: { type: 'json_object' },
       }),
     });
 
     if (!response.ok) {
-      const error = await response.text();
-      console.error('OpenRouter error:', error);
-      throw new Error(`OpenRouter API error: ${response.status}`);
+      const errorText = await response.text();
+      console.error('Lovable AI error:', response.status, errorText);
+      
+      if (response.status === 429) {
+        throw new Error('Rate limit exceeded, please try again later');
+      }
+      if (response.status === 402) {
+        throw new Error('AI credits exhausted');
+      }
+      throw new Error(`AI API error: ${response.status}`);
     }
 
     const data = await response.json();
+    console.log('AI response received successfully');
+    
     let analysis;
     
     try {
       const content = data.choices[0].message.content;
-      analysis = typeof content === 'string' ? JSON.parse(content) : content;
+      // Clean up any markdown formatting
+      const cleanedContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+      analysis = typeof cleanedContent === 'string' ? JSON.parse(cleanedContent) : cleanedContent;
+      console.log('Analysis parsed successfully');
     } catch (parseError) {
       console.error('Parse error:', parseError);
       // Fallback response
       analysis = {
         feedback: isCorrect 
-          ? "Excellent work! You correctly identified the threat and took appropriate action."
-          : "This was a learning opportunity. Always verify suspicious communications through official channels.",
+          ? "Excellent work! You correctly identified the threat and took appropriate action. This shows good security awareness."
+          : "This was a learning opportunity. Always verify suspicious communications through official channels before taking action.",
         tips: [
-          "Check sender email addresses carefully",
-          "Never click links in urgent emails",
-          "Report suspicious emails to IT"
+          "Check sender email addresses carefully for subtle misspellings",
+          "Never click links in emails that create urgency or fear",
+          "When in doubt, contact the sender through a known, verified channel"
         ],
         threat_level: scenario.difficulty === 'hard' ? 'critical' : scenario.difficulty === 'medium' ? 'high' : 'medium',
-        real_world_impact: "Falling for this type of attack could lead to credential theft, data breaches, or financial loss."
+        real_world_impact: "Falling for this type of attack could lead to credential theft, unauthorized access to systems, data breaches, or significant financial loss."
       };
     }
 
