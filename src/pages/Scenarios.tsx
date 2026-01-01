@@ -5,6 +5,7 @@ import { Shield, RefreshCw, BarChart3, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import Sidebar from "@/components/layout/Sidebar";
+import GmailEmailUI from "@/components/scenarios/GmailEmailUI";
 import ScenarioUI from "@/components/scenarios/ScenarioUI";
 import { 
   generateUniqueScenario, 
@@ -55,7 +56,7 @@ const Scenarios = () => {
     setAiAnalysis(null);
   };
 
-  const getAIAnalysis = useCallback(async (scenario: Scenario, userAnswer: string, isCorrect: boolean) => {
+  const getAIAnalysis = useCallback(async (scenario: Scenario, userAction: string, isCorrect: boolean) => {
     setIsAnalyzing(true);
     try {
       const response = await supabase.functions.invoke('analyze-scenario', {
@@ -65,8 +66,8 @@ const Scenarios = () => {
             type: scenario.type,
             difficulty: scenario.difficulty,
           },
-          userAction: userAnswer === 'phishing' ? 'Reported as Phishing' : 'Marked as Safe',
-          correctAction: scenario.correctAnswer === 'phishing' ? 'Report as Phishing' : 'Mark as Safe',
+          userAction,
+          correctAction: scenario.correctAnswer === 'phishing' ? 'Report as Phishing' : 'Interact normally (legitimate email)',
           isCorrect,
           timeTaken: 30,
         }
@@ -82,10 +83,9 @@ const Scenarios = () => {
     }
   }, []);
 
-  const handleAnswer = async (answer: 'phishing' | 'legitimate') => {
+  const processResult = async (isCorrect: boolean, userAction: string) => {
     if (!currentScenario || !userId) return;
 
-    const isCorrect = answer === currentScenario.correctAnswer;
     setUserCorrect(isCorrect);
     setShowResult(true);
 
@@ -102,7 +102,7 @@ const Scenarios = () => {
       await supabase.from("user_attempts").insert({
         user_id: userId,
         scenario_id: currentScenario.id,
-        selected_action: answer,
+        selected_action: userAction,
         is_correct: isCorrect,
         score_change: score,
         time_taken_seconds: 30,
@@ -135,7 +135,56 @@ const Scenarios = () => {
     });
 
     // Get AI analysis
-    getAIAnalysis(currentScenario, answer, isCorrect);
+    getAIAnalysis(currentScenario, userAction, isCorrect);
+  };
+
+  // Handle Gmail-style email actions
+  const handleEmailAction = (action: 'report' | 'link_click' | 'reply' | 'forward' | 'correct_safe_action') => {
+    if (!currentScenario) return;
+
+    const isPhishing = currentScenario.correctAnswer === 'phishing';
+
+    switch (action) {
+      case 'report':
+        // User marked as phishing
+        if (isPhishing) {
+          // Correct - it was phishing
+          processResult(true, 'Marked as Phishing');
+        } else {
+          // Incorrect - it was legitimate
+          processResult(false, 'Incorrectly marked as Phishing');
+        }
+        break;
+
+      case 'link_click':
+        // User clicked a phishing link (warning was shown)
+        processResult(false, 'Clicked phishing link');
+        break;
+
+      case 'reply':
+        // User replied to a phishing email
+        processResult(false, 'Replied to phishing email');
+        break;
+
+      case 'forward':
+        // User forwarded a phishing email
+        processResult(false, 'Forwarded phishing email');
+        break;
+
+      case 'correct_safe_action':
+        // User interacted correctly with a legitimate email
+        processResult(true, 'Correctly interacted with legitimate email');
+        break;
+    }
+  };
+
+  // Handle non-email scenario answers (legacy flow)
+  const handleAnswer = async (answer: 'phishing' | 'legitimate') => {
+    if (!currentScenario) return;
+
+    const isCorrect = answer === currentScenario.correctAnswer;
+    const userAction = answer === 'phishing' ? 'Reported as Phishing' : 'Marked as Safe';
+    processResult(isCorrect, userAction);
   };
 
   const handleReset = () => {
@@ -144,6 +193,9 @@ const Scenarios = () => {
     loadNextScenario();
     toast({ title: "Session Reset", description: "Starting fresh!" });
   };
+
+  // Check if current scenario is an email type
+  const isEmailScenario = currentScenario?.type === 'email';
 
   return (
     <div className="min-h-screen bg-background flex">
@@ -213,12 +265,34 @@ const Scenarios = () => {
                 <span className="text-sm text-muted-foreground capitalize">{currentScenario.type}</span>
               </div>
 
-              <ScenarioUI
-                scenario={currentScenario}
-                onAnswer={handleAnswer}
-                showResult={showResult}
-                userCorrect={userCorrect}
-              />
+              {/* Email scenarios use Gmail-style UI */}
+              {isEmailScenario ? (
+                <GmailEmailUI
+                  email={{
+                    from: currentScenario.content.from || '',
+                    to: currentScenario.content.to || 'you@email.com',
+                    subject: currentScenario.content.subject || '',
+                    body: currentScenario.content.body || '',
+                    date: currentScenario.content.date || new Date().toLocaleDateString(),
+                    hasAttachment: currentScenario.content.hasAttachment,
+                    attachmentName: currentScenario.content.attachmentName,
+                  }}
+                  isPhishing={currentScenario.correctAnswer === 'phishing'}
+                  onAction={handleEmailAction}
+                  showResult={showResult}
+                  userCorrect={userCorrect}
+                  explanation={currentScenario.explanation}
+                  redFlags={currentScenario.redFlags}
+                  trustIndicators={currentScenario.trustIndicators}
+                />
+              ) : (
+                <ScenarioUI
+                  scenario={currentScenario}
+                  onAnswer={handleAnswer}
+                  showResult={showResult}
+                  userCorrect={userCorrect}
+                />
+              )}
 
               {/* AI Analysis */}
               {showResult && (
