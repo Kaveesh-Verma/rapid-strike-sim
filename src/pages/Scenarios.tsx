@@ -6,7 +6,12 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import Sidebar from "@/components/layout/Sidebar";
 import GmailEmailUI from "@/components/scenarios/GmailEmailUI";
-import ScenarioUI from "@/components/scenarios/ScenarioUI";
+import SMSMessageUI from "@/components/scenarios/SMSMessageUI";
+import PhishingWebsiteUI from "@/components/scenarios/PhishingWebsiteUI";
+import RansomwarePopupUI from "@/components/scenarios/RansomwarePopupUI";
+import VoiceCallUI from "@/components/scenarios/VoiceCallUI";
+import QRCodeUI from "@/components/scenarios/QRCodeUI";
+import SocialMediaUI from "@/components/scenarios/SocialMediaUI";
 import { 
   generateUniqueScenario, 
   getSessionStats, 
@@ -67,7 +72,7 @@ const Scenarios = () => {
             difficulty: scenario.difficulty,
           },
           userAction,
-          correctAction: scenario.correctAnswer === 'phishing' ? 'Report as Phishing' : 'Interact normally (legitimate email)',
+          correctAction: scenario.correctAnswer === 'phishing' ? 'Report as Phishing' : 'Complete task / Interact normally',
           isCorrect,
           timeTaken: 30,
         }
@@ -89,15 +94,12 @@ const Scenarios = () => {
     setUserCorrect(isCorrect);
     setShowResult(true);
 
-    // Update local session stats
     const stats = updateSessionStats(isCorrect);
     setSessionStats(stats);
 
-    // Calculate score
     const difficultyScores = { easy: 10, medium: 20, hard: 30 };
     const score = isCorrect ? difficultyScores[currentScenario.difficulty] : -5;
 
-    // Save to database
     try {
       await supabase.from("user_attempts").insert({
         user_id: userId,
@@ -108,7 +110,6 @@ const Scenarios = () => {
         time_taken_seconds: 30,
       });
 
-      // Update profile stats
       const { data: profile } = await supabase
         .from("profiles")
         .select("*")
@@ -134,57 +135,34 @@ const Scenarios = () => {
       variant: isCorrect ? "default" : "destructive",
     });
 
-    // Get AI analysis
     getAIAnalysis(currentScenario, userAction, isCorrect);
   };
 
-  // Handle Gmail-style email actions
-  const handleEmailAction = (action: 'report' | 'link_click' | 'reply' | 'forward' | 'correct_safe_action') => {
+  // Universal action handler for all scenario types
+  const handleAction = (action: string) => {
     if (!currentScenario) return;
-
     const isPhishing = currentScenario.correctAnswer === 'phishing';
 
-    switch (action) {
-      case 'report':
-        // User marked as phishing
-        if (isPhishing) {
-          // Correct - it was phishing
-          processResult(true, 'Marked as Phishing');
-        } else {
-          // Incorrect - it was legitimate
-          processResult(false, 'Incorrectly marked as Phishing');
-        }
-        break;
-
-      case 'link_click':
-        // User clicked a phishing link (warning was shown)
-        processResult(false, 'Clicked phishing link');
-        break;
-
-      case 'reply':
-        // User replied to a phishing email
-        processResult(false, 'Replied to phishing email');
-        break;
-
-      case 'forward':
-        // User forwarded a phishing email
-        processResult(false, 'Forwarded phishing email');
-        break;
-
-      case 'correct_safe_action':
-        // User interacted correctly with a legitimate email
-        processResult(true, 'Correctly interacted with legitimate email');
-        break;
+    // Correct actions
+    if (action === 'report' && isPhishing) {
+      processResult(true, 'Correctly reported as phishing');
+    } else if (action === 'task_complete' && !isPhishing) {
+      processResult(true, 'Successfully completed legitimate task');
+    } else if (action === 'correct_safe_action' && !isPhishing) {
+      processResult(true, 'Correctly interacted with legitimate content');
+    } else if ((action === 'hangup' || action === 'close' || action === 'ignore') && isPhishing) {
+      processResult(true, 'Correctly ignored/blocked phishing attempt');
     }
-  };
-
-  // Handle non-email scenario answers (legacy flow)
-  const handleAnswer = async (answer: 'phishing' | 'legitimate') => {
-    if (!currentScenario) return;
-
-    const isCorrect = answer === currentScenario.correctAnswer;
-    const userAction = answer === 'phishing' ? 'Reported as Phishing' : 'Marked as Safe';
-    processResult(isCorrect, userAction);
+    // Incorrect actions
+    else if (action === 'report' && !isPhishing) {
+      processResult(false, 'Incorrectly marked legitimate content as phishing');
+    } else if ((action === 'link_click' || action === 'scan' || action === 'submit_credentials' || action === 'pay' || action === 'call' || action === 'click_link' || action === 'share' || action === 'reply' || action === 'forward' || action === 'answer') && isPhishing) {
+      processResult(false, 'Fell for phishing attempt');
+    } else if ((action === 'leave' || action === 'ignore' || action === 'hangup') && !isPhishing) {
+      processResult(false, 'Ignored legitimate request');
+    } else {
+      processResult(false, `Incorrect action: ${action}`);
+    }
   };
 
   const handleReset = () => {
@@ -194,49 +172,150 @@ const Scenarios = () => {
     toast({ title: "Session Reset", description: "Starting fresh!" });
   };
 
-  // Check if current scenario is an email type
-  const isEmailScenario = currentScenario?.type === 'email';
+  // Render appropriate UI based on scenario type
+  const renderScenarioUI = () => {
+    if (!currentScenario) return null;
+
+    const commonProps = {
+      showResult,
+      userCorrect,
+      explanation: currentScenario.explanation,
+      redFlags: currentScenario.redFlags,
+      trustIndicators: currentScenario.trustIndicators,
+    };
+
+    switch (currentScenario.type) {
+      case 'email':
+        return (
+          <GmailEmailUI
+            email={{
+              from: currentScenario.content.from || '',
+              to: currentScenario.content.to || 'you@email.com',
+              subject: currentScenario.content.subject || '',
+              body: currentScenario.content.body || '',
+              date: currentScenario.content.date || new Date().toLocaleDateString(),
+              hasAttachment: currentScenario.content.hasAttachment,
+              attachmentName: currentScenario.content.attachmentName,
+            }}
+            isPhishing={currentScenario.correctAnswer === 'phishing'}
+            onAction={handleAction}
+            {...commonProps}
+          />
+        );
+
+      case 'sms':
+        return (
+          <SMSMessageUI
+            sms={{
+              sender: currentScenario.content.sender || '',
+              message: currentScenario.content.message || '',
+            }}
+            isPhishing={currentScenario.correctAnswer === 'phishing'}
+            onAction={handleAction}
+            {...commonProps}
+          />
+        );
+
+      case 'website':
+        return (
+          <PhishingWebsiteUI
+            website={{
+              url: currentScenario.content.url || '',
+              websiteTitle: currentScenario.content.websiteTitle || '',
+              websiteContent: currentScenario.content.websiteContent || '',
+            }}
+            isPhishing={currentScenario.correctAnswer === 'phishing'}
+            onAction={handleAction}
+            {...commonProps}
+          />
+        );
+
+      case 'voice':
+        return (
+          <VoiceCallUI
+            call={{
+              callerNumber: currentScenario.content.callerNumber || '',
+              transcript: currentScenario.content.transcript || '',
+            }}
+            isPhishing={currentScenario.correctAnswer === 'phishing'}
+            onAction={handleAction}
+            {...commonProps}
+          />
+        );
+
+      case 'qrcode':
+        return (
+          <QRCodeUI
+            qrCode={{
+              qrContext: currentScenario.content.qrContext || '',
+              qrDestination: currentScenario.content.qrDestination || '',
+            }}
+            isPhishing={currentScenario.correctAnswer === 'phishing'}
+            onAction={handleAction}
+            {...commonProps}
+          />
+        );
+
+      case 'social':
+        return (
+          <SocialMediaUI
+            content={{
+              platform: currentScenario.content.platform || '',
+              username: currentScenario.content.username || '',
+              post: currentScenario.content.post || '',
+              verified: currentScenario.content.username?.includes('Verified'),
+            }}
+            isPhishing={currentScenario.correctAnswer === 'phishing'}
+            onAction={handleAction}
+            {...commonProps}
+          />
+        );
+
+      default:
+        return <div className="text-center py-12 text-gray-500">Unknown scenario type</div>;
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="min-h-screen bg-gray-50 flex">
       <Sidebar />
 
       <main className="flex-1 p-8 overflow-auto">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="mb-6">
-            <h1 className="text-3xl font-bold uppercase tracking-wider mb-2">Cyber Simulator</h1>
-            <p className="text-muted-foreground">
-              {getScenarioCount()} unique scenarios • 50% phishing, 50% legitimate
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Cyber Attack Simulator</h1>
+            <p className="text-gray-500">
+              {getScenarioCount()} unique scenarios • Realistic immersive training
             </p>
           </div>
 
           {/* Stats Bar */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <div className="border-2 border-border bg-card p-4">
-              <div className="flex items-center gap-2 text-muted-foreground text-xs uppercase mb-1">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+              <div className="flex items-center gap-2 text-gray-500 text-xs uppercase mb-1">
                 <Target className="w-4 h-4" />
                 Correct
               </div>
-              <div className="text-2xl font-bold text-primary">
+              <div className="text-2xl font-bold text-green-600">
                 {sessionStats.correct}/{sessionStats.total}
               </div>
             </div>
-            <div className="border-2 border-border bg-card p-4">
-              <div className="flex items-center gap-2 text-muted-foreground text-xs uppercase mb-1">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+              <div className="flex items-center gap-2 text-gray-500 text-xs uppercase mb-1">
                 <BarChart3 className="w-4 h-4" />
                 Accuracy
               </div>
-              <div className="text-2xl font-bold">
+              <div className="text-2xl font-bold text-gray-900">
                 {sessionStats.accuracy}%
               </div>
             </div>
-            <div className="border-2 border-border bg-card p-4">
-              <div className="text-xs uppercase text-muted-foreground mb-2">Difficulty</div>
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+              <div className="text-xs uppercase text-gray-500 mb-2">Difficulty</div>
               <select 
                 value={difficulty}
                 onChange={(e) => setDifficulty(e.target.value as Difficulty | 'mixed')}
-                className="w-full bg-muted border border-border p-1 text-sm"
+                className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm"
               >
                 <option value="mixed">Mixed</option>
                 <option value="easy">Easy</option>
@@ -244,7 +323,7 @@ const Scenarios = () => {
                 <option value="hard">Hard</option>
               </select>
             </div>
-            <div className="border-2 border-border bg-card p-4 flex items-center justify-center">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 flex items-center justify-center">
               <Button variant="outline" size="sm" onClick={handleReset} className="gap-2">
                 <RefreshCw className="w-4 h-4" /> Reset
               </Button>
@@ -255,66 +334,39 @@ const Scenarios = () => {
           {currentScenario ? (
             <>
               <div className="mb-4 flex items-center gap-4">
-                <span className={`text-xs uppercase tracking-wider px-2 py-1 border ${
-                  currentScenario.difficulty === "easy" ? "border-primary/50 text-primary" :
-                  currentScenario.difficulty === "medium" ? "border-accent/50 text-accent" :
-                  "border-destructive/50 text-destructive"
+                <span className={`text-xs uppercase tracking-wider px-3 py-1 rounded-full font-medium ${
+                  currentScenario.difficulty === "easy" ? "bg-green-100 text-green-700" :
+                  currentScenario.difficulty === "medium" ? "bg-yellow-100 text-yellow-700" :
+                  "bg-red-100 text-red-700"
                 }`}>
                   {currentScenario.difficulty}
                 </span>
-                <span className="text-sm text-muted-foreground capitalize">{currentScenario.type}</span>
+                <span className="text-sm text-gray-500 capitalize">{currentScenario.type}</span>
               </div>
 
-              {/* Email scenarios use Gmail-style UI */}
-              {isEmailScenario ? (
-                <GmailEmailUI
-                  email={{
-                    from: currentScenario.content.from || '',
-                    to: currentScenario.content.to || 'you@email.com',
-                    subject: currentScenario.content.subject || '',
-                    body: currentScenario.content.body || '',
-                    date: currentScenario.content.date || new Date().toLocaleDateString(),
-                    hasAttachment: currentScenario.content.hasAttachment,
-                    attachmentName: currentScenario.content.attachmentName,
-                  }}
-                  isPhishing={currentScenario.correctAnswer === 'phishing'}
-                  onAction={handleEmailAction}
-                  showResult={showResult}
-                  userCorrect={userCorrect}
-                  explanation={currentScenario.explanation}
-                  redFlags={currentScenario.redFlags}
-                  trustIndicators={currentScenario.trustIndicators}
-                />
-              ) : (
-                <ScenarioUI
-                  scenario={currentScenario}
-                  onAnswer={handleAnswer}
-                  showResult={showResult}
-                  userCorrect={userCorrect}
-                />
-              )}
+              {renderScenarioUI()}
 
               {/* AI Analysis */}
               {showResult && (
-                <div className="mt-4 border-2 border-border bg-card p-4">
+                <div className="mt-6 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                   {isAnalyzing ? (
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <div className="animate-spin w-4 h-4 border-2 border-primary border-t-transparent rounded-full" />
+                    <div className="flex items-center gap-3 text-gray-500">
+                      <div className="animate-spin w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full" />
                       Generating AI analysis...
                     </div>
                   ) : aiAnalysis && (
-                    <div className="space-y-3">
-                      <h4 className="font-bold uppercase text-sm flex items-center gap-2">
-                        <Shield className="w-4 h-4 text-primary" /> AI Insight
+                    <div className="space-y-4">
+                      <h4 className="font-bold text-gray-900 flex items-center gap-2">
+                        <Shield className="w-5 h-5 text-blue-500" /> AI Insight
                       </h4>
-                      <p className="text-sm">{aiAnalysis.feedback}</p>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-muted-foreground">Threat Level:</span>
-                        <span className={`text-xs uppercase px-2 py-1 border font-bold ${
-                          aiAnalysis.threat_level === 'critical' ? 'border-destructive text-destructive' :
-                          aiAnalysis.threat_level === 'high' ? 'border-destructive/70 text-destructive/70' :
-                          aiAnalysis.threat_level === 'low' ? 'border-primary text-primary' :
-                          'border-accent text-accent'
+                      <p className="text-gray-700">{aiAnalysis.feedback}</p>
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm text-gray-500">Threat Level:</span>
+                        <span className={`text-xs uppercase px-3 py-1 rounded-full font-bold ${
+                          aiAnalysis.threat_level === 'critical' ? 'bg-red-100 text-red-700' :
+                          aiAnalysis.threat_level === 'high' ? 'bg-orange-100 text-orange-700' :
+                          aiAnalysis.threat_level === 'low' ? 'bg-green-100 text-green-700' :
+                          'bg-yellow-100 text-yellow-700'
                         }`}>
                           {aiAnalysis.threat_level}
                         </span>
@@ -322,8 +374,8 @@ const Scenarios = () => {
                     </div>
                   )}
 
-                  <div className="mt-4 flex gap-3">
-                    <Button onClick={loadNextScenario} variant="cyber">
+                  <div className="mt-6 flex gap-3">
+                    <Button onClick={loadNextScenario} className="bg-blue-600 hover:bg-blue-700 text-white">
                       Next Scenario →
                     </Button>
                     <Button onClick={() => navigate('/dashboard')} variant="outline">
@@ -334,7 +386,7 @@ const Scenarios = () => {
               )}
             </>
           ) : (
-            <div className="text-center py-12 text-muted-foreground">
+            <div className="text-center py-12 text-gray-500">
               Loading scenario...
             </div>
           )}
