@@ -40,6 +40,35 @@ interface EmailContent {
   taskAction?: string;
 }
 
+// Task completion scenarios for legitimate emails
+const taskCompletionContent: Record<string, { title: string; description: string; buttonText: string }> = {
+  'Track Order': {
+    title: 'Order Tracking',
+    description: 'Your package is on the way! Estimated delivery: Tomorrow by 8 PM',
+    buttonText: 'View Tracking Details'
+  },
+  'Reset Password': {
+    title: 'Password Reset',
+    description: 'Enter your new password to complete the reset process.',
+    buttonText: 'Set New Password'
+  },
+  'View Document': {
+    title: 'Shared Document',
+    description: 'You now have access to view and edit this document.',
+    buttonText: 'Open Document'
+  },
+  'Join Meeting': {
+    title: 'Zoom Meeting',
+    description: 'Click below to join the scheduled meeting.',
+    buttonText: 'Join Now'
+  },
+  'default': {
+    title: 'Task Complete',
+    description: 'You have successfully completed this action.',
+    buttonText: 'Continue'
+  }
+};
+
 interface GmailEmailUIProps {
   email: EmailContent;
   isPhishing: boolean;
