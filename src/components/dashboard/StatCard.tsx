@@ -39,14 +39,16 @@ const StatCard = ({ icon: Icon, label, value, suffix = "", highlight = false, an
   }, [numericValue, animate, value]);
 
   return (
-    <div className={`border-2 border-border p-6 bg-card transition-all duration-300 hover:border-primary/50 hover:cyber-glow ${highlight ? 'border-primary/30' : ''}`}>
+    <div className={`bg-white rounded-xl border border-gray-200 p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:border-blue-200 ${highlight ? 'border-blue-300' : ''}`}>
       <div className="flex items-center gap-3 mb-3">
-        <Icon className={`w-6 h-6 ${highlight ? 'text-primary animate-pulse' : 'text-primary'}`} />
-        <span className="text-sm uppercase text-muted-foreground tracking-wider">{label}</span>
+        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${highlight ? 'bg-blue-100' : 'bg-gray-100'}`}>
+          <Icon className={`w-5 h-5 ${highlight ? 'text-blue-600' : 'text-gray-600'}`} />
+        </div>
+        <span className="text-sm text-gray-500 font-medium">{label}</span>
       </div>
-      <p className={`text-4xl font-bold ${highlight ? 'text-primary' : 'text-foreground'}`}>
+      <p className={`text-3xl font-bold ${highlight ? 'text-blue-600' : 'text-gray-900'}`}>
         {typeof value === 'number' ? displayValue : value}
-        {suffix && <span className="text-2xl text-muted-foreground">{suffix}</span>}
+        {suffix && <span className="text-xl text-gray-400 font-normal">{suffix}</span>}
       </p>
     </div>
   );

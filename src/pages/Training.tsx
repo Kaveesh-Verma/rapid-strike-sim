@@ -131,7 +131,7 @@ const Training = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="min-h-screen bg-gray-50 flex">
       <Sidebar />
 
       <main className="flex-1 p-8 overflow-auto">
@@ -139,60 +139,60 @@ const Training = () => {
           <div className="max-w-3xl animate-in slide-in-from-right duration-300">
             <button
               onClick={() => setSelectedModule(null)}
-              className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 transition-colors"
+              className="flex items-center gap-2 text-gray-500 hover:text-gray-900 mb-6 transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
-              <span className="uppercase text-sm">Back to Modules</span>
+              <span className="text-sm font-medium">Back to Modules</span>
             </button>
             
-            <div className="border-2 border-border bg-card">
-              <div className="p-6 border-b-2 border-border bg-muted/30">
-                <div className="flex items-center gap-3 mb-2">
-                  <span className="text-xs uppercase tracking-wider text-primary px-2 py-1 border border-primary">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+              <div className="p-6 border-b border-gray-100 bg-gray-50">
+                <div className="flex items-center gap-3 mb-3">
+                  <span className="text-xs uppercase tracking-wider font-medium text-blue-700 px-3 py-1 bg-blue-100 rounded-full">
                     {selectedModule.category}
                   </span>
-                  <span className={`text-xs uppercase tracking-wider px-2 py-1 border ${
-                    selectedModule.difficulty === 'beginner' ? 'border-primary/50 text-primary' :
-                    selectedModule.difficulty === 'intermediate' ? 'border-accent/50 text-accent' :
-                    'border-destructive/50 text-destructive'
+                  <span className={`text-xs uppercase tracking-wider font-medium px-3 py-1 rounded-full ${
+                    selectedModule.difficulty === 'beginner' ? 'bg-green-100 text-green-700' :
+                    selectedModule.difficulty === 'intermediate' ? 'bg-yellow-100 text-yellow-700' :
+                    'bg-red-100 text-red-700'
                   }`}>
                     {selectedModule.difficulty}
                   </span>
                   {completedModules.includes(selectedModule.module_id) && (
-                    <span className="ml-auto flex items-center gap-1 text-primary text-xs uppercase">
+                    <span className="ml-auto flex items-center gap-1 text-green-600 text-xs font-medium">
                       <Check className="w-4 h-4" /> Completed
                     </span>
                   )}
                 </div>
-                <h2 className="text-2xl font-bold uppercase">{selectedModule.title}</h2>
-                <p className="text-muted-foreground mt-2">{selectedModule.description}</p>
+                <h2 className="text-2xl font-bold text-gray-900">{selectedModule.title}</h2>
+                <p className="text-gray-600 mt-2">{selectedModule.description}</p>
               </div>
               
               <div className="p-6 space-y-6">
                 <div>
-                  <h3 className="font-bold uppercase text-sm mb-3 text-primary flex items-center gap-2">
-                    <BookOpen className="w-4 h-4" /> Learning Content
+                  <h3 className="font-semibold text-sm mb-3 text-gray-800 flex items-center gap-2">
+                    <BookOpen className="w-4 h-4 text-blue-600" /> Learning Content
                   </h3>
-                  <pre className="whitespace-pre-wrap text-sm text-foreground font-mono bg-muted p-4 border border-border leading-relaxed">
+                  <div className="whitespace-pre-wrap text-sm text-gray-700 bg-gray-50 p-4 rounded-lg border border-gray-200 leading-relaxed">
                     {selectedModule.content}
-                  </pre>
+                  </div>
                 </div>
                 
-                <div className="border-l-2 border-accent pl-4 bg-accent/5 py-4 pr-4">
-                  <h3 className="font-bold uppercase text-sm mb-2 text-accent flex items-center gap-2">
+                <div className="border-l-4 border-amber-400 pl-4 bg-amber-50 py-4 pr-4 rounded-r-lg">
+                  <h3 className="font-semibold text-sm mb-2 text-amber-800 flex items-center gap-2">
                     <Award className="w-4 h-4" /> Why It Matters
                   </h3>
-                  <p className="text-foreground">{selectedModule.why_it_matters}</p>
+                  <p className="text-gray-700">{selectedModule.why_it_matters}</p>
                 </div>
 
-                <div className="pt-4 border-t border-border">
+                <div className="pt-4 border-t border-gray-100">
                   {completedModules.includes(selectedModule.module_id) ? (
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-primary">
+                      <div className="flex items-center gap-2 text-green-600 font-medium">
                         <Check className="w-5 h-5" /> Module Completed
                       </div>
                       <Button 
-                        variant="outline"
+                        className="bg-blue-600 hover:bg-blue-700 text-white"
                         onClick={() => {
                           const currentIndex = LEARNING_MODULES.findIndex(m => m.module_id === selectedModule.module_id);
                           const nextModule = LEARNING_MODULES[currentIndex + 1];
@@ -208,7 +208,7 @@ const Training = () => {
                     <Button 
                       onClick={() => completeModule(selectedModule.module_id)}
                       disabled={isCompleting}
-                      className="w-full sm:w-auto"
+                      className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white"
                     >
                       {isCompleting ? "Saving..." : "Mark as Complete (+50 XP)"}
                     </Button>
@@ -218,23 +218,23 @@ const Training = () => {
             </div>
           </div>
         ) : (
-          <div className="animate-in fade-in duration-300">
+          <div className="animate-in fade-in duration-300 max-w-4xl">
             <div className="mb-8">
-              <h1 className="text-3xl font-bold uppercase tracking-wider mb-2">Training Modules</h1>
-              <p className="text-muted-foreground">
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Training Modules</h1>
+              <p className="text-gray-500">
                 {completedModules.length}/{LEARNING_MODULES.length} modules completed • Earn 50 XP per module
               </p>
             </div>
 
             {/* Overall Progress */}
-            <div className="mb-8 p-4 border-2 border-border bg-card">
+            <div className="mb-8 p-4 bg-white rounded-xl border border-gray-200 shadow-sm">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm uppercase text-muted-foreground">Overall Progress</span>
-                <span className="text-primary font-bold">{Math.round((completedModules.length / LEARNING_MODULES.length) * 100)}%</span>
+                <span className="text-sm font-medium text-gray-600">Overall Progress</span>
+                <span className="text-blue-600 font-bold">{Math.round((completedModules.length / LEARNING_MODULES.length) * 100)}%</span>
               </div>
-              <div className="h-3 bg-muted border border-border">
+              <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
                 <div 
-                  className="h-full bg-primary transition-all duration-700"
+                  className="h-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-700 rounded-full"
                   style={{ width: `${(completedModules.length / LEARNING_MODULES.length) * 100}%` }}
                 />
               </div>
@@ -245,8 +245,8 @@ const Training = () => {
               return (
                 <div key={category} className="mb-8">
                   <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-bold uppercase tracking-wider text-primary">{category}</h2>
-                    <span className="text-sm text-muted-foreground">
+                    <h2 className="text-lg font-bold text-gray-800">{category}</h2>
+                    <span className="text-sm text-gray-500">
                       {progress.completed}/{progress.total}
                     </span>
                   </div>
@@ -257,25 +257,25 @@ const Training = () => {
                         <button
                           key={module.module_id}
                           onClick={() => setSelectedModule(module)}
-                          className="border-2 border-border p-4 bg-card text-left hover:border-primary/50 transition-all duration-200 flex items-center justify-between group"
+                          className="bg-white rounded-xl border border-gray-200 p-4 text-left hover:border-blue-300 hover:shadow-md transition-all duration-200 flex items-center justify-between group"
                           style={{ animationDelay: `${index * 50}ms` }}
                         >
                           <div className="flex items-center gap-4">
                             {isCompleted ? (
-                              <div className="w-8 h-8 border-2 border-primary bg-primary/20 flex items-center justify-center">
-                                <Check className="w-4 h-4 text-primary" />
+                              <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
+                                <Check className="w-5 h-5 text-green-600" />
                               </div>
                             ) : (
-                              <div className="w-8 h-8 border-2 border-border flex items-center justify-center group-hover:border-primary/50 transition-colors">
-                                <span className="text-xs text-muted-foreground">{index + 1}</span>
+                              <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center group-hover:bg-blue-50 transition-colors">
+                                <span className="text-sm font-medium text-gray-500 group-hover:text-blue-600">{index + 1}</span>
                               </div>
                             )}
                             <div>
-                              <h3 className="font-bold uppercase text-sm">{module.title}</h3>
-                              <p className="text-sm text-muted-foreground">{module.description}</p>
+                              <h3 className="font-semibold text-gray-900">{module.title}</h3>
+                              <p className="text-sm text-gray-500">{module.description}</p>
                             </div>
                           </div>
-                          <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                          <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-blue-600 transition-colors" />
                         </button>
                       );
                     })}

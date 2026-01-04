@@ -5,17 +5,17 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 uppercase tracking-wider font-bold border-2",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 rounded-lg",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground border-primary hover:bg-primary/90 shadow-[3px_3px_0_hsl(var(--border))] hover:shadow-[1px_1px_0_hsl(var(--border))] hover:translate-x-[2px] hover:translate-y-[2px] active:shadow-none active:translate-x-[3px] active:translate-y-[3px]",
-        destructive: "bg-destructive text-destructive-foreground border-destructive hover:bg-destructive/90",
-        outline: "border-border bg-background hover:bg-muted hover:text-foreground shadow-[3px_3px_0_hsl(var(--border))] hover:shadow-[1px_1px_0_hsl(var(--border))] hover:translate-x-[2px] hover:translate-y-[2px]",
-        secondary: "bg-secondary text-secondary-foreground border-secondary hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground border-transparent",
-        link: "text-primary underline-offset-4 hover:underline border-transparent",
-        cyber: "bg-primary text-primary-foreground border-primary cyber-glow hover:bg-primary/80 shadow-[3px_3px_0_hsl(var(--border))] hover:shadow-[1px_1px_0_hsl(var(--border))] hover:translate-x-[2px] hover:translate-y-[2px]",
+        default: "bg-blue-600 text-white hover:bg-blue-700 shadow-sm",
+        destructive: "bg-red-600 text-white hover:bg-red-700 shadow-sm",
+        outline: "border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 shadow-sm",
+        secondary: "bg-gray-100 text-gray-900 hover:bg-gray-200",
+        ghost: "hover:bg-gray-100 text-gray-700",
+        link: "text-blue-600 underline-offset-4 hover:underline",
+        cyber: "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 shadow-sm",
       },
       size: {
         default: "h-10 px-4 py-2",

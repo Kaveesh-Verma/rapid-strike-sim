@@ -36,7 +36,7 @@ const Auth = () => {
       if (isLogin) {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        toast({ title: "ACCESS GRANTED", description: "Welcome back, operator." });
+        toast({ title: "Welcome back!", description: "You've successfully logged in." });
       } else {
         const { error } = await supabase.auth.signUp({
           email,
@@ -44,11 +44,11 @@ const Auth = () => {
           options: { emailRedirectTo: `${window.location.origin}/` }
         });
         if (error) throw error;
-        toast({ title: "ACCOUNT CREATED", description: "You can now access the system." });
+        toast({ title: "Account Created", description: "You can now access the training system." });
       }
     } catch (error: any) {
       toast({
-        title: "ACCESS DENIED",
+        title: "Error",
         description: error.message,
         variant: "destructive",
       });
@@ -58,22 +58,24 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="min-h-screen bg-gray-50 flex">
       {/* Left Panel - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 border-r-2 border-border p-12 flex-col justify-between">
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-600 to-purple-700 p-12 flex-col justify-between text-white">
         <div>
           <div className="flex items-center gap-3 mb-12">
-            <Shield className="w-10 h-10 text-primary" />
-            <span className="font-bold text-2xl uppercase tracking-wider">Rapid Capture</span>
+            <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
+              <Shield className="w-7 h-7 text-white" />
+            </div>
+            <span className="font-bold text-2xl">Rapid Capture</span>
           </div>
-          <h1 className="text-4xl font-bold uppercase tracking-tight mb-4">
+          <h1 className="text-5xl font-bold mb-6">
             Cyber Attack<br />Training Simulator
           </h1>
-          <p className="text-muted-foreground max-w-md">
+          <p className="text-white/80 max-w-md text-lg">
             An educational platform for learning to identify and respond to cyber threats in a safe, simulated environment.
           </p>
         </div>
-        <div className="text-sm text-muted-foreground border-t-2 border-border pt-6">
+        <div className="text-sm text-white/70 border-t border-white/20 pt-6 space-y-1">
           <p>✓ No real attacks</p>
           <p>✓ No real malware</p>
           <p>✓ 100% educational</p>
@@ -85,48 +87,54 @@ const Auth = () => {
         <div className="w-full max-w-md">
           <button
             onClick={() => navigate("/")}
-            className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-8 transition-colors"
+            className="flex items-center gap-2 text-gray-500 hover:text-gray-900 mb-8 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span className="text-sm uppercase tracking-wider">Back to Home</span>
+            <span className="text-sm font-medium">Back to Home</span>
           </button>
 
-          <div className="border-2 border-border bg-card p-8">
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold uppercase tracking-wider mb-2">
-                {isLogin ? "System Login" : "Create Account"}
+          <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
+            <div className="mb-8 text-center">
+              <div className="lg:hidden flex items-center justify-center gap-2 mb-4">
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center">
+                  <Shield className="w-6 h-6 text-white" />
+                </div>
+                <span className="font-bold text-xl text-gray-900">Rapid Capture</span>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                {isLogin ? "Welcome back" : "Create Account"}
               </h2>
-              <p className="text-muted-foreground text-sm">
-                {isLogin ? "Enter credentials to access the training system" : "Register to begin your training"}
+              <p className="text-gray-500 text-sm">
+                {isLogin ? "Enter your credentials to access the training system" : "Register to begin your training"}
               </p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm uppercase tracking-wider mb-2">Email</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
                 <Input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="bg-background border-2 border-border"
-                  placeholder="operator@company.com"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="you@company.com"
                 />
               </div>
               <div>
-                <label className="block text-sm uppercase tracking-wider mb-2">Password</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
                 <Input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   minLength={6}
-                  className="bg-background border-2 border-border"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="••••••••"
                 />
               </div>
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "PROCESSING..." : isLogin ? "LOGIN" : "CREATE ACCOUNT"}
+              <Button type="submit" className="w-full h-12 text-base" disabled={loading}>
+                {loading ? "Please wait..." : isLogin ? "Sign In" : "Create Account"}
               </Button>
             </form>
 
@@ -134,9 +142,9 @@ const Auth = () => {
               <button
                 type="button"
                 onClick={() => setIsLogin(!isLogin)}
-                className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                className="text-sm text-gray-500 hover:text-blue-600 transition-colors"
               >
-                {isLogin ? "Need an account? Register" : "Already have an account? Login"}
+                {isLogin ? "Need an account? Sign up" : "Already have an account? Sign in"}
               </button>
             </div>
           </div>
