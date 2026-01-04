@@ -18,27 +18,29 @@ const Sidebar = () => {
   };
 
   return (
-    <aside className="w-64 border-r-2 border-border bg-sidebar p-4 flex flex-col min-h-screen">
-      <div className="flex items-center gap-3 mb-8 pb-4 border-b-2 border-border">
-        <Shield className="w-8 h-8 text-primary animate-pulse" />
-        <span className="font-bold uppercase tracking-wider">Rapid Capture</span>
+    <aside className="w-64 border-r border-gray-200 bg-white p-4 flex flex-col min-h-screen shadow-sm">
+      <div className="flex items-center gap-3 mb-8 pb-4 border-b border-gray-200">
+        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center">
+          <Shield className="w-6 h-6 text-white" />
+        </div>
+        <span className="font-bold text-gray-900">Rapid Capture</span>
       </div>
 
-      <nav className="flex-1 space-y-2">
+      <nav className="flex-1 space-y-1">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;
           return (
             <button
               key={item.path}
               onClick={() => navigate(item.path)}
-              className={`w-full flex items-center gap-3 px-4 py-3 transition-all duration-200 ${
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
                 isActive
-                  ? "bg-muted text-foreground border-l-2 border-primary"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted hover:translate-x-1"
+                  ? "bg-blue-50 text-blue-700 font-medium"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
               }`}
             >
-              <item.icon className={`w-5 h-5 ${isActive ? "text-primary" : ""}`} />
-              <span className="uppercase text-sm tracking-wider">{item.label}</span>
+              <item.icon className={`w-5 h-5 ${isActive ? "text-blue-600" : "text-gray-500"}`} />
+              <span className="text-sm">{item.label}</span>
             </button>
           );
         })}
@@ -46,10 +48,10 @@ const Sidebar = () => {
 
       <button
         onClick={handleLogout}
-        className="flex items-center gap-3 px-4 py-3 text-muted-foreground hover:text-destructive transition-colors group"
+        className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors"
       >
-        <LogOut className="w-5 h-5 group-hover:animate-pulse" />
-        <span className="uppercase text-sm tracking-wider">Logout</span>
+        <LogOut className="w-5 h-5" />
+        <span className="text-sm">Logout</span>
       </button>
     </aside>
   );
