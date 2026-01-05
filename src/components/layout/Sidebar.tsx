@@ -18,14 +18,16 @@ const Sidebar = () => {
   };
 
   return (
-    <aside className="w-64 border-r border-gray-200 bg-white p-4 flex flex-col min-h-screen shadow-sm">
-      <div className="flex items-center gap-3 mb-8 pb-4 border-b border-gray-200">
-        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center">
-          <Shield className="w-6 h-6 text-white" />
+    <aside className="w-64 border-r border-cyber-green/20 bg-black p-4 flex flex-col min-h-screen">
+      {/* Logo Section */}
+      <div className="flex items-center gap-3 mb-8 pb-4 border-b border-cyber-green/20">
+        <div className="w-10 h-10 rounded-lg bg-cyber-green/10 border border-cyber-green/30 flex items-center justify-center">
+          <Shield className="w-6 h-6 text-cyber-green" />
         </div>
-        <span className="font-bold text-gray-900">Rapid Capture</span>
+        <span className="font-bold text-cyber-green font-mono tracking-wider">RAPID CAPTURE</span>
       </div>
 
+      {/* Navigation */}
       <nav className="flex-1 space-y-1">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;
@@ -33,25 +35,26 @@ const Sidebar = () => {
             <button
               key={item.path}
               onClick={() => navigate(item.path)}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 font-mono text-sm ${
                 isActive
-                  ? "bg-blue-50 text-blue-700 font-medium"
-                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                  ? "bg-cyber-green/10 text-cyber-green border border-cyber-green/30"
+                  : "text-gray-400 hover:text-cyber-green hover:bg-cyber-green/5 border border-transparent"
               }`}
             >
-              <item.icon className={`w-5 h-5 ${isActive ? "text-blue-600" : "text-gray-500"}`} />
-              <span className="text-sm">{item.label}</span>
+              <item.icon className={`w-5 h-5 ${isActive ? "text-cyber-green" : "text-gray-500"}`} />
+              <span>{item.label}</span>
             </button>
           );
         })}
       </nav>
 
+      {/* Logout Button */}
       <button
         onClick={handleLogout}
-        className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors"
+        className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-500 hover:text-cyber-red hover:bg-cyber-red/10 transition-colors font-mono text-sm border border-transparent hover:border-cyber-red/30"
       >
         <LogOut className="w-5 h-5" />
-        <span className="text-sm">Logout</span>
+        <span>Logout</span>
       </button>
     </aside>
   );

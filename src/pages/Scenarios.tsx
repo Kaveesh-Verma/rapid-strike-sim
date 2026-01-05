@@ -330,69 +330,69 @@ const Scenarios = () => {
   };
 
   const getDifficultyStyles = (diff: string, isSelected: boolean) => {
-    const base = "px-4 py-2 rounded-lg font-medium text-sm transition-all border-2";
+    const base = "px-4 py-2 rounded-lg font-medium text-sm transition-all border font-mono";
     if (isSelected) {
       switch (diff) {
-        case 'easy': return `${base} bg-green-600 text-white border-green-600`;
-        case 'medium': return `${base} bg-yellow-500 text-white border-yellow-500`;
-        case 'hard': return `${base} bg-red-600 text-white border-red-600`;
-        case 'mixed': return `${base} bg-blue-600 text-white border-blue-600`;
-        default: return `${base} bg-gray-600 text-white border-gray-600`;
+        case 'easy': return `${base} bg-green-500/20 text-green-400 border-green-500`;
+        case 'medium': return `${base} bg-yellow-500/20 text-yellow-400 border-yellow-500`;
+        case 'hard': return `${base} bg-red-500/20 text-red-400 border-red-500`;
+        case 'mixed': return `${base} bg-cyber-green/20 text-cyber-green border-cyber-green`;
+        default: return `${base} bg-gray-600/20 text-gray-400 border-gray-600`;
       }
     }
     switch (diff) {
-      case 'easy': return `${base} bg-white text-green-700 border-green-300 hover:border-green-500 hover:bg-green-50`;
-      case 'medium': return `${base} bg-white text-yellow-700 border-yellow-300 hover:border-yellow-500 hover:bg-yellow-50`;
-      case 'hard': return `${base} bg-white text-red-700 border-red-300 hover:border-red-500 hover:bg-red-50`;
-      case 'mixed': return `${base} bg-white text-blue-700 border-blue-300 hover:border-blue-500 hover:bg-blue-50`;
-      default: return `${base} bg-white text-gray-700 border-gray-300 hover:border-gray-500`;
+      case 'easy': return `${base} bg-transparent text-green-600 border-green-700/50 hover:border-green-500 hover:bg-green-500/10`;
+      case 'medium': return `${base} bg-transparent text-yellow-600 border-yellow-700/50 hover:border-yellow-500 hover:bg-yellow-500/10`;
+      case 'hard': return `${base} bg-transparent text-red-600 border-red-700/50 hover:border-red-500 hover:bg-red-500/10`;
+      case 'mixed': return `${base} bg-transparent text-gray-400 border-gray-700 hover:border-cyber-green/50 hover:bg-cyber-green/10`;
+      default: return `${base} bg-transparent text-gray-500 border-gray-700 hover:border-gray-500`;
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-black flex">
       <Sidebar />
 
       <main className="flex-1 p-4 md:p-8 overflow-auto">
         <div className="max-w-4xl mx-auto">
-          {/* Header */}
+          {/* Header - Dark Theme */}
           <div className="mb-6">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center">
-                <Shield className="w-6 h-6 text-white" />
+              <div className="w-10 h-10 rounded-lg bg-cyber-green/10 border border-cyber-green/30 flex items-center justify-center">
+                <Shield className="w-6 h-6 text-cyber-green" />
               </div>
               <div>
-                <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Cyber Attack Simulator</h1>
-                <p className="text-gray-500 text-sm">
+                <h1 className="text-2xl md:text-3xl font-bold text-cyber-green font-mono">CYBER ATTACK SIMULATOR</h1>
+                <p className="text-gray-500 text-sm font-mono">
                   {getScenarioCount()} unique scenarios • Enterprise-grade training
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Stats & Controls */}
+          {/* Stats & Controls - Dark Theme */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-              <div className="flex items-center gap-2 text-gray-500 text-xs uppercase mb-1">
-                <Target className="w-4 h-4" />
+            <div className="bg-black/50 rounded-xl border border-cyber-green/20 p-4">
+              <div className="flex items-center gap-2 text-gray-500 text-xs uppercase mb-1 font-mono">
+                <Target className="w-4 h-4 text-cyber-green" />
                 Score
               </div>
-              <div className="text-2xl font-bold text-gray-900">
-                <span className="text-green-600">{sessionStats.correct}</span>
-                <span className="text-gray-400">/{sessionStats.total}</span>
+              <div className="text-2xl font-bold font-mono">
+                <span className="text-cyber-green">{sessionStats.correct}</span>
+                <span className="text-gray-600">/{sessionStats.total}</span>
               </div>
             </div>
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-              <div className="flex items-center gap-2 text-gray-500 text-xs uppercase mb-1">
-                <BarChart3 className="w-4 h-4" />
+            <div className="bg-black/50 rounded-xl border border-cyber-green/20 p-4">
+              <div className="flex items-center gap-2 text-gray-500 text-xs uppercase mb-1 font-mono">
+                <BarChart3 className="w-4 h-4 text-cyber-green" />
                 Accuracy
               </div>
-              <div className={`text-2xl font-bold ${sessionStats.accuracy >= 70 ? 'text-green-600' : sessionStats.accuracy >= 50 ? 'text-yellow-600' : 'text-red-600'}`}>
+              <div className={`text-2xl font-bold font-mono ${sessionStats.accuracy >= 70 ? 'text-cyber-green' : sessionStats.accuracy >= 50 ? 'text-yellow-500' : 'text-cyber-red'}`}>
                 {sessionStats.accuracy}%
               </div>
             </div>
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 col-span-2">
-              <div className="text-xs uppercase text-gray-500 mb-2">Difficulty</div>
+            <div className="bg-black/50 rounded-xl border border-cyber-green/20 p-4 col-span-2">
+              <div className="text-xs uppercase text-gray-500 mb-2 font-mono">Difficulty</div>
               <div className="flex gap-2 flex-wrap">
                 {(['mixed', 'easy', 'medium', 'hard'] as const).map((d) => (
                   <button
@@ -410,9 +410,9 @@ const Scenarios = () => {
             </div>
           </div>
 
-          {/* Reset Button */}
+          {/* Reset Button - Dark Theme */}
           <div className="flex justify-end mb-4">
-            <Button variant="outline" size="sm" onClick={handleReset} className="gap-2 text-gray-600">
+            <Button variant="outline" size="sm" onClick={handleReset} className="gap-2 text-gray-400 border-gray-700 hover:text-cyber-green hover:border-cyber-green/50 font-mono">
               <RefreshCw className="w-4 h-4" /> Reset Session
             </Button>
           </div>
@@ -420,22 +420,22 @@ const Scenarios = () => {
           {/* Current Scenario */}
           {currentScenario ? (
             <>
-              {/* Scenario Badge */}
+              {/* Scenario Badge - Dark Theme */}
               <div className="mb-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <span className={`text-xs uppercase tracking-wider px-3 py-1.5 rounded-full font-semibold ${
-                    currentScenario.difficulty === "easy" ? "bg-green-100 text-green-700 border border-green-200" :
-                    currentScenario.difficulty === "medium" ? "bg-yellow-100 text-yellow-700 border border-yellow-200" :
-                    "bg-red-100 text-red-700 border border-red-200"
+                  <span className={`text-xs uppercase tracking-wider px-3 py-1.5 rounded-full font-semibold font-mono ${
+                    currentScenario.difficulty === "easy" ? "bg-green-500/20 text-green-400 border border-green-500/50" :
+                    currentScenario.difficulty === "medium" ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500/50" :
+                    "bg-red-500/20 text-red-400 border border-red-500/50"
                   }`}>
                     {currentScenario.difficulty}
                   </span>
-                  <span className="text-sm text-gray-500 capitalize flex items-center gap-1">
-                    <Zap className="w-4 h-4" />
+                  <span className="text-sm text-gray-500 capitalize flex items-center gap-1 font-mono">
+                    <Zap className="w-4 h-4 text-cyber-green" />
                     {currentScenario.type}
                   </span>
                 </div>
-                <span className="text-xs text-gray-400">
+                <span className="text-xs text-gray-600 font-mono">
                   Scenario #{sessionStats.total + 1}
                 </span>
               </div>
@@ -449,7 +449,7 @@ const Scenarios = () => {
                   {isAnalyzing ? (
                     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
                       <div className="flex flex-col items-center gap-4">
-                        <div className="animate-spin w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full" />
+                        <div className="animate-spin w-10 h-10 border-4 border-cyber-green border-t-transparent rounded-full" />
                         <div className="text-center">
                           <p className="text-gray-700 font-medium">Analyzing scenario...</p>
                           <p className="text-gray-500 text-sm">AI is evaluating threat indicators</p>
@@ -467,12 +467,12 @@ const Scenarios = () => {
                     />
                   )}
 
-                  {/* Navigation Buttons */}
+                  {/* Navigation Buttons - Dark Theme */}
                   <div className="flex gap-3 justify-center">
-                    <Button onClick={loadNextScenario} className="bg-blue-600 hover:bg-blue-700 text-white gap-2">
+                    <Button onClick={loadNextScenario} className="bg-cyber-green hover:bg-cyber-green/80 text-black gap-2 font-mono font-semibold">
                       Next Scenario <ChevronRight className="w-4 h-4" />
                     </Button>
-                    <Button onClick={() => navigate('/dashboard')} variant="outline">
+                    <Button onClick={() => navigate('/dashboard')} variant="outline" className="border-gray-700 text-gray-400 hover:text-cyber-green hover:border-cyber-green/50 font-mono">
                       Back to Dashboard
                     </Button>
                   </div>
@@ -481,8 +481,8 @@ const Scenarios = () => {
             </>
           ) : (
             <div className="text-center py-12">
-              <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4" />
-              <p className="text-gray-500">Loading scenario...</p>
+              <div className="animate-spin w-8 h-8 border-4 border-cyber-green border-t-transparent rounded-full mx-auto mb-4" />
+              <p className="text-gray-500 font-mono">Loading scenario...</p>
             </div>
           )}
         </div>
