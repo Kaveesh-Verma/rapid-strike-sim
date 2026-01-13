@@ -1,69 +1,53 @@
-# Welcome to Rapid Strike- Sim by Kaveesh
+# 🚀 Rapid Strike Simulator
+**By Kaveesh Verma**
 
-## Project info
+A web-based cyber attack training simulator designed to help users learn and practice defensive responses to digital threats in a safe, simulated environment.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+---
 
-## How can I edit this code?
+## 🔍 Project Overview
 
-There are several ways of editing your application.
+Rapid Strike Simulator presents interactive attack scenarios (e.g., phishing, login exploits) to educate users on spotting and responding correctly to cyber threats. It provides scoring and feedback to promote learning.
 
-**Use Lovable**
+---
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+## 🛠 Technologies Used
 
-Changes made via Lovable will be committed automatically to this repo.
+- **Vite**
+- **React**
+- **TypeScript**
+- **Tailwind CSS**
+- **shadcn-ui**
 
-**Use your preferred IDE**
+---
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## 🚀 Setup & Installation
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+Make sure you have Node.js and npm installed.
 
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```bash
+git clone https://github.com/Kaveesh-Verma/rapid-strike-sim.git
+cd rapid-strike-sim
+npm install
 npm run dev
-```
 
-**Edit a file directly in GitHub**
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+🧪 Usage
 
-**Use GitHub Codespaces**
+Open in browser
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Choose a simulation scenario
 
-## What technologies are used for this project?
+Respond to attack prompts
 
-This project is built with:
+Receive score and feedback
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+⚠️ Disclaimer
 
-## Can I connect a custom domain to my Lovable project?
+This project is for educational and training purposes only. It does not use or deploy real cyber attacks.
 
-Yes, you can!
+📌 Author
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Kaveesh Verma
+CSE Undergraduate
+📍 GH Raisoni College of Engineering & Management, Pune
