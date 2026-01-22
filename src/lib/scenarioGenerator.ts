@@ -1,9 +1,15 @@
 // Advanced Scenario Generator with Zero-Repetition & True Difficulty Separation
 // Enterprise-grade cyber attack simulation engine
+// Includes Conference Fraud, Investment Fraud, and Telegram Scam scenarios
+
+import { getAdvancedScenariosByDifficulty, isTelegramScam as checkTelegramScam } from './advancedScenarios';
 
 export type ScenarioType = 'email' | 'sms' | 'website' | 'social' | 'voice' | 'qrcode' | 'ransomware';
 export type ScenarioAnswer = 'phishing' | 'legitimate';
 export type Difficulty = 'easy' | 'medium' | 'hard';
+
+// Re-export telegram scam checker
+export const isTelegramScam = checkTelegramScam;
 
 export interface Scenario {
   id: string;
@@ -1117,19 +1123,22 @@ const hardLegitimateScenarios: Scenario[] = [
   },
 ];
 
-// Combine scenarios by difficulty
+// Get advanced scenarios
+const advancedScenarios = getAdvancedScenariosByDifficulty();
+
+// Combine scenarios by difficulty (including advanced fraud scenarios)
 const scenariosByDifficulty = {
   easy: {
-    phishing: easyPhishingScenarios,
-    legitimate: easyLegitimateScenarios,
+    phishing: [...easyPhishingScenarios, ...advancedScenarios.easy.phishing],
+    legitimate: [...easyLegitimateScenarios, ...advancedScenarios.easy.legitimate],
   },
   medium: {
-    phishing: mediumPhishingScenarios,
-    legitimate: mediumLegitimateScenarios,
+    phishing: [...mediumPhishingScenarios, ...advancedScenarios.medium.phishing],
+    legitimate: [...mediumLegitimateScenarios, ...advancedScenarios.medium.legitimate],
   },
   hard: {
-    phishing: hardPhishingScenarios,
-    legitimate: hardLegitimateScenarios,
+    phishing: [...hardPhishingScenarios, ...advancedScenarios.hard.phishing],
+    legitimate: [...hardLegitimateScenarios, ...advancedScenarios.hard.legitimate],
   },
 };
 
