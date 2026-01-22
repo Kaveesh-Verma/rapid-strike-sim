@@ -130,6 +130,39 @@ export type Database = {
         }
         Relationships: []
       }
+      module_quiz_questions: {
+        Row: {
+          correct_option_index: number
+          created_at: string
+          explanation: string | null
+          id: string
+          module_id: string
+          options: Json
+          order_index: number | null
+          question: string
+        }
+        Insert: {
+          correct_option_index: number
+          created_at?: string
+          explanation?: string | null
+          id?: string
+          module_id: string
+          options: Json
+          order_index?: number | null
+          question: string
+        }
+        Update: {
+          correct_option_index?: number
+          created_at?: string
+          explanation?: string | null
+          id?: string
+          module_id?: string
+          options?: Json
+          order_index?: number | null
+          question?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string | null
@@ -163,6 +196,45 @@ export type Database = {
           scenarios_correct?: number | null
           total_score?: number | null
           training_completed?: number | null
+        }
+        Relationships: []
+      }
+      scenario_tokens: {
+        Row: {
+          created_at: string
+          email_sent_to: string
+          expires_at: string
+          id: string
+          is_correct: boolean | null
+          result_action: string | null
+          scenario_data: Json
+          token: string
+          used_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email_sent_to: string
+          expires_at?: string
+          id?: string
+          is_correct?: boolean | null
+          result_action?: string | null
+          scenario_data: Json
+          token: string
+          used_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email_sent_to?: string
+          expires_at?: string
+          id?: string
+          is_correct?: boolean | null
+          result_action?: string | null
+          scenario_data?: Json
+          token?: string
+          used_at?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -241,6 +313,57 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_preferences: {
+        Row: {
+          id: string
+          language: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          language?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          language?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_quiz_attempts: {
+        Row: {
+          answers: Json
+          created_at: string
+          id: string
+          module_id: string
+          passed: boolean
+          score: number
+          user_id: string
+        }
+        Insert: {
+          answers: Json
+          created_at?: string
+          id?: string
+          module_id: string
+          passed: boolean
+          score: number
+          user_id: string
+        }
+        Update: {
+          answers?: Json
+          created_at?: string
+          id?: string
+          module_id?: string
+          passed?: boolean
+          score?: number
+          user_id?: string
+        }
+        Relationships: []
       }
     }
     Views: {

@@ -2,3 +2,9 @@ project_id = "ygnijjrmosdkprouepwh"
 
 [functions.analyze-scenario]
 verify_jwt = false
+
+[functions.send-scenario-email]
+verify_jwt = false
+
+[functions.ai-insight-agent]
+verify_jwt = false
