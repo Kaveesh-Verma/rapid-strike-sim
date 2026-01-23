@@ -20,6 +20,9 @@ const handler = async (req: Request): Promise<Response> => {
   try {
     const { email, scenarioData, userId }: SendScenarioRequest = await req.json();
 
+    // Extract subject from scenario data
+    const subject = scenarioData.content?.subject || scenarioData.title || "Security Training Scenario";
+
     // Generate unique token
     const token = crypto.randomUUID();
     
