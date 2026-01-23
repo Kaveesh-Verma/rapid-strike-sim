@@ -13,6 +13,7 @@ import VoiceCallUI from "@/components/scenarios/VoiceCallUI";
 import QRCodeUI from "@/components/scenarios/QRCodeUI";
 import SocialMediaUI from "@/components/scenarios/SocialMediaUI";
 import EnhancedAIAnalysis from "@/components/scenarios/EnhancedAIAnalysis";
+import EmailDeliverySection from "@/components/scenarios/EmailDeliverySection";
 import { 
   generateUniqueScenario, 
   getSessionStats, 
@@ -442,6 +443,11 @@ const Scenarios = () => {
 
               {/* Scenario UI */}
               {renderScenarioUI()}
+
+              {/* Email Delivery Section - Below Scenario */}
+              {!showResult && (
+                <EmailDeliverySection currentScenario={currentScenario} userId={userId} />
+              )}
 
               {/* AI Analysis Section */}
               {showResult && (
