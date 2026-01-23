@@ -8,6 +8,7 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Training from "./pages/Training";
 import Scenarios from "./pages/Scenarios";
+import ScenarioToken from "./pages/ScenarioToken";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +25,7 @@ const App = () => (
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/training" element={<Training />} />
           <Route path="/scenarios" element={<Scenarios />} />
+          <Route path="/scenario/:token" element={<ScenarioToken />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
