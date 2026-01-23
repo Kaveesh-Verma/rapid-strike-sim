@@ -71,6 +71,18 @@ export interface TranslationStrings {
     quizPassed: string;
     quizFailed: string;
     tryAgain: string;
+    moduleComplete: string;
+    completed: string;
+    learningContent: string;
+    whyItMatters: string;
+    quizRequired: string;
+    passToComplete: string;
+    takeQuiz: string;
+    nextModule: string;
+    markComplete: string;
+    completeQuizFirst: string;
+    modulesCompleted: string;
+    overallProgress: string;
   };
   
   // Email delivery
@@ -150,7 +162,19 @@ const translations: Record<SupportedLanguage, TranslationStrings> = {
       passRequired: '70% required to pass',
       quizPassed: 'Quiz Passed!',
       quizFailed: 'Quiz Failed',
-      tryAgain: 'Try Again',
+      tryAgain: 'Review the material and try again.',
+      moduleComplete: 'Module Completed',
+      completed: 'Completed',
+      learningContent: 'Learning Content',
+      whyItMatters: 'Why It Matters',
+      quizRequired: 'Quiz Required',
+      passToComplete: 'Pass the quiz (70%) to complete this module',
+      takeQuiz: 'Take Quiz',
+      nextModule: 'Next Module',
+      markComplete: 'Mark as Complete (+50 XP)',
+      completeQuizFirst: 'Complete the quiz to unlock module completion',
+      modulesCompleted: 'modules completed',
+      overallProgress: 'Overall Progress',
     },
     email: {
       sendToDevice: 'Send to Your Device',
@@ -224,7 +248,19 @@ const translations: Record<SupportedLanguage, TranslationStrings> = {
       passRequired: 'पास करने के लिए 70% आवश्यक',
       quizPassed: 'प्रश्नोत्तरी पास!',
       quizFailed: 'प्रश्नोत्तरी असफल',
-      tryAgain: 'पुनः प्रयास करें',
+      tryAgain: 'सामग्री की समीक्षा करें और पुनः प्रयास करें।',
+      moduleComplete: 'मॉड्यूल पूर्ण',
+      completed: 'पूर्ण',
+      learningContent: 'शिक्षण सामग्री',
+      whyItMatters: 'यह क्यों मायने रखता है',
+      quizRequired: 'प्रश्नोत्तरी आवश्यक',
+      passToComplete: 'इस मॉड्यूल को पूरा करने के लिए प्रश्नोत्तरी (70%) पास करें',
+      takeQuiz: 'प्रश्नोत्तरी लें',
+      nextModule: 'अगला मॉड्यूल',
+      markComplete: 'पूर्ण के रूप में चिह्नित करें (+50 XP)',
+      completeQuizFirst: 'मॉड्यूल पूर्णता अनलॉक करने के लिए प्रश्नोत्तरी पूरी करें',
+      modulesCompleted: 'मॉड्यूल पूर्ण',
+      overallProgress: 'समग्र प्रगति',
     },
     email: {
       sendToDevice: 'अपने डिवाइस पर भेजें',
@@ -298,7 +334,19 @@ const translations: Record<SupportedLanguage, TranslationStrings> = {
       passRequired: '70% requerido para aprobar',
       quizPassed: '¡Cuestionario Aprobado!',
       quizFailed: 'Cuestionario Fallido',
-      tryAgain: 'Intentar de Nuevo',
+      tryAgain: 'Revisa el material e intenta de nuevo.',
+      moduleComplete: 'Módulo Completado',
+      completed: 'Completado',
+      learningContent: 'Contenido de Aprendizaje',
+      whyItMatters: 'Por Qué Importa',
+      quizRequired: 'Cuestionario Requerido',
+      passToComplete: 'Aprueba el cuestionario (70%) para completar este módulo',
+      takeQuiz: 'Realizar Cuestionario',
+      nextModule: 'Siguiente Módulo',
+      markComplete: 'Marcar como Completo (+50 XP)',
+      completeQuizFirst: 'Completa el cuestionario para desbloquear la finalización del módulo',
+      modulesCompleted: 'módulos completados',
+      overallProgress: 'Progreso General',
     },
     email: {
       sendToDevice: 'Enviar a tu Dispositivo',
@@ -372,7 +420,19 @@ const translations: Record<SupportedLanguage, TranslationStrings> = {
       passRequired: '70% requis pour réussir',
       quizPassed: 'Quiz Réussi !',
       quizFailed: 'Quiz Échoué',
-      tryAgain: 'Réessayer',
+      tryAgain: 'Révisez le matériel et réessayez.',
+      moduleComplete: 'Module Terminé',
+      completed: 'Terminé',
+      learningContent: 'Contenu d\'Apprentissage',
+      whyItMatters: 'Pourquoi C\'est Important',
+      quizRequired: 'Quiz Requis',
+      passToComplete: 'Réussissez le quiz (70%) pour terminer ce module',
+      takeQuiz: 'Passer le Quiz',
+      nextModule: 'Module Suivant',
+      markComplete: 'Marquer comme Terminé (+50 XP)',
+      completeQuizFirst: 'Terminez le quiz pour débloquer la complétion du module',
+      modulesCompleted: 'modules terminés',
+      overallProgress: 'Progrès Global',
     },
     email: {
       sendToDevice: 'Envoyer à Votre Appareil',
@@ -446,7 +506,19 @@ const translations: Record<SupportedLanguage, TranslationStrings> = {
       passRequired: '70% zum Bestehen erforderlich',
       quizPassed: 'Quiz bestanden!',
       quizFailed: 'Quiz nicht bestanden',
-      tryAgain: 'Erneut versuchen',
+      tryAgain: 'Überprüfen Sie das Material und versuchen Sie es erneut.',
+      moduleComplete: 'Modul Abgeschlossen',
+      completed: 'Abgeschlossen',
+      learningContent: 'Lerninhalt',
+      whyItMatters: 'Warum Es Wichtig Ist',
+      quizRequired: 'Quiz Erforderlich',
+      passToComplete: 'Bestehen Sie das Quiz (70%) um dieses Modul abzuschließen',
+      takeQuiz: 'Quiz Starten',
+      nextModule: 'Nächstes Modul',
+      markComplete: 'Als Abgeschlossen Markieren (+50 XP)',
+      completeQuizFirst: 'Schließen Sie das Quiz ab um den Modulabschluss freizuschalten',
+      modulesCompleted: 'Module abgeschlossen',
+      overallProgress: 'Gesamtfortschritt',
     },
     email: {
       sendToDevice: 'An Ihr Gerät senden',
