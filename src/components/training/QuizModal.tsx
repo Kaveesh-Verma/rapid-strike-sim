@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { CheckCircle, XCircle, HelpCircle, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { QuizQuestion, calculateQuizScore } from "@/lib/quizData";
+import { shuffleAllQuestions, ShuffledQuizQuestion, getOptionLabel } from "@/lib/quizUtils";
+import { useLanguage } from "@/hooks/useLanguage";
 
 interface QuizModalProps {
   open: boolean;
@@ -14,6 +16,7 @@ interface QuizModalProps {
 }
 
 const QuizModal = ({ open, onClose, questions, moduleTitle, onComplete }: QuizModalProps) => {
+  const { t } = useLanguage();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<number[]>([]);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
@@ -21,8 +24,25 @@ const QuizModal = ({ open, onClose, questions, moduleTitle, onComplete }: QuizMo
   const [quizComplete, setQuizComplete] = useState(false);
   const [result, setResult] = useState<{ score: number; percentage: number; passed: boolean } | null>(null);
 
-  const currentQuestion = questions[currentIndex];
-  const progress = ((currentIndex + 1) / questions.length) * 100;
+  // Shuffle questions when quiz opens - memoize to prevent re-shuffle on re-renders
+  const shuffledQuestions = useMemo<ShuffledQuizQuestion[]>(() => {
+    return shuffleAllQuestions(questions);
+  }, [questions]);
+
+  // Reset state when dialog opens
+  useEffect(() => {
+    if (open) {
+      setCurrentIndex(0);
+      setAnswers([]);
+      setSelectedOption(null);
+      setShowFeedback(false);
+      setQuizComplete(false);
+      setResult(null);
+    }
+  }, [open]);
+
+  const currentQuestion = shuffledQuestions[currentIndex];
+  const progress = ((currentIndex + 1) / shuffledQuestions.length) * 100;
 
   const handleSelectOption = (optionIndex: number) => {
     if (showFeedback) return;
@@ -40,11 +60,19 @@ const QuizModal = ({ open, onClose, questions, moduleTitle, onComplete }: QuizMo
     setShowFeedback(false);
     setSelectedOption(null);
 
-    if (currentIndex < questions.length - 1) {
+    if (currentIndex < shuffledQuestions.length - 1) {
       setCurrentIndex(currentIndex + 1);
     } else {
-      // Quiz complete
-      const quizResult = calculateQuizScore(questions, newAnswers);
+      // Quiz complete - calculate score using shuffled questions
+      const correctCount = newAnswers.reduce((acc, answer, idx) => {
+        return acc + (answer === shuffledQuestions[idx].correctOptionIndex ? 1 : 0);
+      }, 0);
+      const percentage = Math.round((correctCount / shuffledQuestions.length) * 100);
+      const quizResult = {
+        score: correctCount,
+        percentage,
+        passed: percentage >= 70,
+      };
       setResult(quizResult);
       setQuizComplete(true);
       onComplete(quizResult.passed, quizResult.score);
@@ -63,13 +91,17 @@ const QuizModal = ({ open, onClose, questions, moduleTitle, onComplete }: QuizMo
 
   const isCorrect = selectedOption === currentQuestion?.correctOptionIndex;
 
+  if (!currentQuestion && !quizComplete) {
+    return null;
+  }
+
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="bg-black border-cyber-green/30 max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-cyber-green font-mono flex items-center gap-2">
             <HelpCircle className="w-5 h-5" />
-            Quiz: {moduleTitle}
+            {t.training.quiz}: {moduleTitle}
           </DialogTitle>
         </DialogHeader>
 
@@ -78,7 +110,11 @@ const QuizModal = ({ open, onClose, questions, moduleTitle, onComplete }: QuizMo
             {/* Progress */}
             <div className="space-y-2">
               <div className="flex justify-between text-sm font-mono">
-                <span className="text-gray-400">Question {currentIndex + 1} of {questions.length}</span>
+                <span className="text-gray-400">
+                  {t.training.questionOf
+                    .replace('{current}', String(currentIndex + 1))
+                    .replace('{total}', String(shuffledQuestions.length))}
+                </span>
                 <span className="text-cyber-green">{Math.round(progress)}%</span>
               </div>
               <Progress value={progress} className="h-2 bg-gray-800" />
@@ -89,7 +125,7 @@ const QuizModal = ({ open, onClose, questions, moduleTitle, onComplete }: QuizMo
               <p className="text-gray-200 font-mono text-lg">{currentQuestion?.question}</p>
             </div>
 
-            {/* Options */}
+            {/* Options - with randomized order and A/B/C/D labels */}
             <div className="space-y-3">
               {currentQuestion?.options.map((option, index) => {
                 let optionStyles = "bg-gray-900/30 border-gray-700 hover:border-cyber-green/50";
@@ -113,7 +149,7 @@ const QuizModal = ({ open, onClose, questions, moduleTitle, onComplete }: QuizMo
                   >
                     <div className="flex items-center gap-3">
                       <span className="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center text-sm text-gray-400">
-                        {String.fromCharCode(65 + index)}
+                        {getOptionLabel(index)}
                       </span>
                       <span className="text-gray-200">{option}</span>
                       {showFeedback && index === currentQuestion.correctOptionIndex && (
@@ -138,7 +174,7 @@ const QuizModal = ({ open, onClose, questions, moduleTitle, onComplete }: QuizMo
                     <XCircle className="w-5 h-5 text-red-400" />
                   )}
                   <span className={`font-mono font-semibold ${isCorrect ? 'text-green-400' : 'text-red-400'}`}>
-                    {isCorrect ? 'Correct!' : 'Incorrect'}
+                    {isCorrect ? t.scenarios.correct : t.scenarios.incorrect}
                   </span>
                 </div>
                 <p className="text-gray-300 text-sm font-mono">{currentQuestion?.explanation}</p>
@@ -153,14 +189,14 @@ const QuizModal = ({ open, onClose, questions, moduleTitle, onComplete }: QuizMo
                   disabled={selectedOption === null}
                   className="bg-cyber-green hover:bg-cyber-green/80 text-black font-mono"
                 >
-                  Submit Answer
+                  {t.common.submit}
                 </Button>
               ) : (
                 <Button
                   onClick={handleNextQuestion}
                   className="bg-cyber-green hover:bg-cyber-green/80 text-black font-mono gap-2"
                 >
-                  {currentIndex < questions.length - 1 ? 'Next Question' : 'See Results'}
+                  {currentIndex < shuffledQuestions.length - 1 ? t.common.next : t.training.continueBtn}
                   <ArrowRight className="w-4 h-4" />
                 </Button>
               )}
@@ -181,13 +217,13 @@ const QuizModal = ({ open, onClose, questions, moduleTitle, onComplete }: QuizMo
 
             <div>
               <h3 className={`text-2xl font-bold font-mono ${result?.passed ? 'text-green-400' : 'text-red-400'}`}>
-                {result?.passed ? 'Quiz Passed!' : 'Quiz Failed'}
+                {result?.passed ? t.training.quizPassed : t.training.quizFailed}
               </h3>
               <p className="text-gray-400 font-mono mt-2">
-                You scored {result?.score} out of {questions.length} ({result?.percentage}%)
+                {t.training.yourAnswer}: {result?.score} / {shuffledQuestions.length} ({result?.percentage}%)
               </p>
               <p className="text-gray-500 text-sm font-mono mt-1">
-                {result?.passed ? 'Module unlocked! You can now proceed.' : 'You need 70% to pass. Review the material and try again.'}
+                {result?.passed ? t.training.moduleComplete : t.training.tryAgain}
               </p>
             </div>
 
@@ -195,7 +231,7 @@ const QuizModal = ({ open, onClose, questions, moduleTitle, onComplete }: QuizMo
               onClick={handleClose}
               className={`${result?.passed ? 'bg-cyber-green hover:bg-cyber-green/80' : 'bg-gray-700 hover:bg-gray-600'} text-black font-mono`}
             >
-              {result?.passed ? 'Continue' : 'Try Again Later'}
+              {t.training.continueBtn}
             </Button>
           </div>
         )}

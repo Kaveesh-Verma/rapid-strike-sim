@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Shield, RefreshCw, BarChart3, Target, ChevronRight, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/hooks/useLanguage";
 import Sidebar from "@/components/layout/Sidebar";
 import GmailEmailUI from "@/components/scenarios/GmailEmailUI";
 import SMSMessageUI from "@/components/scenarios/SMSMessageUI";
@@ -14,6 +15,8 @@ import QRCodeUI from "@/components/scenarios/QRCodeUI";
 import SocialMediaUI from "@/components/scenarios/SocialMediaUI";
 import EnhancedAIAnalysis from "@/components/scenarios/EnhancedAIAnalysis";
 import EmailDeliverySection from "@/components/scenarios/EmailDeliverySection";
+import AIInsightPanel from "@/components/scenarios/AIInsightPanel";
+import LanguageSelector from "@/components/ui/LanguageSelector";
 import { 
   generateUniqueScenario, 
   getSessionStats, 
@@ -34,6 +37,7 @@ interface AIAnalysis {
 const Scenarios = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { language, setLanguage, t } = useLanguage();
   const [userId, setUserId] = useState<string | null>(null);
   const [currentScenario, setCurrentScenario] = useState<Scenario | null>(null);
   const [showResult, setShowResult] = useState(false);
@@ -43,6 +47,7 @@ const Scenarios = () => {
   const [aiAnalysis, setAiAnalysis] = useState<AIAnalysis | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [scenarioStartTime, setScenarioStartTime] = useState<number>(Date.now());
+  const [lastAction, setLastAction] = useState<string>('');
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -122,6 +127,7 @@ const Scenarios = () => {
 
     const timeTaken = Math.round((Date.now() - scenarioStartTime) / 1000);
     
+    setLastAction(userAction);
     setUserCorrect(isCorrect);
     setShowResult(true);
 
@@ -443,6 +449,16 @@ const Scenarios = () => {
 
               {/* Scenario UI */}
               {renderScenarioUI()}
+
+              {/* AI Insight Panel - Always visible for hint/guided before answer */}
+              {currentScenario && (
+                <AIInsightPanel 
+                  scenario={currentScenario} 
+                  showResult={showResult}
+                  userAction={lastAction}
+                  isCorrect={userCorrect}
+                />
+              )}
 
               {/* Email Delivery Section - Below Scenario */}
               {!showResult && (
