@@ -10,7 +10,6 @@ export const SUPPORTED_LANGUAGES: { code: SupportedLanguage; name: string; nativ
 ];
 
 export interface TranslationStrings {
-  // Common
   common: {
     loading: string;
     error: string;
@@ -22,9 +21,10 @@ export interface TranslationStrings {
     submit: string;
     save: string;
     close: string;
+    resetSession: string;
+    practiceOnDevice: string;
+    sendToMobile: string;
   };
-  
-  // Navigation
   nav: {
     dashboard: string;
     training: string;
@@ -32,14 +32,14 @@ export interface TranslationStrings {
     settings: string;
     logout: string;
   };
-  
-  // Scenarios
   scenarios: {
     title: string;
+    subtitle: string;
     difficulty: string;
     easy: string;
     medium: string;
     hard: string;
+    mixed: string;
     score: string;
     accuracy: string;
     correct: string;
@@ -58,9 +58,11 @@ export interface TranslationStrings {
     trustIndicators: string;
     telegramBlocked: string;
     telegramBlockedDesc: string;
+    scenarioType: string;
+    explanation: string;
+    thisWasPhishing: string;
+    thisWasLegitimate: string;
   };
-  
-  // Training
   training: {
     title: string;
     modules: string;
@@ -83,17 +85,20 @@ export interface TranslationStrings {
     completeQuizFirst: string;
     modulesCompleted: string;
     overallProgress: string;
+    questionOf: string;
+    yourAnswer: string;
+    correctAnswer: string;
+    continueBtn: string;
   };
-  
-  // Email delivery
   email: {
     sendToDevice: string;
     enterEmail: string;
     emailSent: string;
     emailError: string;
+    practiceTitle: string;
+    practiceDesc: string;
+    checkInbox: string;
   };
-  
-  // AI Insight
   aiInsight: {
     hintMode: string;
     hintModeDesc: string;
@@ -104,6 +109,13 @@ export interface TranslationStrings {
     getHint: string;
     getGuidance: string;
     validateAnswer: string;
+  };
+  analysis: {
+    threatLevel: string;
+    aiConfidence: string;
+    securityAnalysis: string;
+    realWorldImpact: string;
+    recommendedActions: string;
   };
 }
 
@@ -120,6 +132,9 @@ const translations: Record<SupportedLanguage, TranslationStrings> = {
       submit: 'Submit',
       save: 'Save',
       close: 'Close',
+      resetSession: 'Reset Session',
+      practiceOnDevice: 'Practice on Your Device',
+      sendToMobile: 'Send to Mobile',
     },
     nav: {
       dashboard: 'Dashboard',
@@ -129,11 +144,13 @@ const translations: Record<SupportedLanguage, TranslationStrings> = {
       logout: 'Log Out',
     },
     scenarios: {
-      title: 'Attack Simulator',
+      title: 'Cyber Attack Simulator',
+      subtitle: 'Enterprise-grade training',
       difficulty: 'Difficulty',
       easy: 'Easy',
       medium: 'Medium',
       hard: 'Hard',
+      mixed: 'Mixed',
       score: 'Score',
       accuracy: 'Accuracy',
       correct: 'Correct!',
@@ -152,6 +169,10 @@ const translations: Record<SupportedLanguage, TranslationStrings> = {
       trustIndicators: 'Trust Indicators',
       telegramBlocked: 'Known Fraud Pattern Detected',
       telegramBlockedDesc: 'This interaction has been blocked. This is a known Telegram scam pattern.',
+      scenarioType: 'Scenario Type',
+      explanation: 'Explanation',
+      thisWasPhishing: 'This was a phishing attempt',
+      thisWasLegitimate: 'This was legitimate',
     },
     training: {
       title: 'Training Center',
@@ -175,12 +196,19 @@ const translations: Record<SupportedLanguage, TranslationStrings> = {
       completeQuizFirst: 'Complete the quiz to unlock module completion',
       modulesCompleted: 'modules completed',
       overallProgress: 'Overall Progress',
+      questionOf: 'Question {current} of {total}',
+      yourAnswer: 'Your Answer',
+      correctAnswer: 'Correct Answer',
+      continueBtn: 'Continue',
     },
     email: {
       sendToDevice: 'Send to Your Device',
       enterEmail: 'Enter your email address',
       emailSent: 'Simulation email sent! Check your inbox.',
       emailError: 'Failed to send email. Please try again.',
+      practiceTitle: 'Practice on Your Device',
+      practiceDesc: 'Get this scenario sent to your email for mobile training',
+      checkInbox: 'Check your inbox',
     },
     aiInsight: {
       hintMode: 'Hint Mode',
@@ -189,9 +217,16 @@ const translations: Record<SupportedLanguage, TranslationStrings> = {
       guidedModeDesc: 'Step-by-step analysis help',
       validateMode: 'Answer Validation',
       validateModeDesc: 'Explain why your answer was correct or incorrect',
-      getHint: 'Get a Hint',
+      getHint: 'Get Hint',
       getGuidance: 'Guide Me',
-      validateAnswer: 'Explain My Answer',
+      validateAnswer: 'Explain Answer',
+    },
+    analysis: {
+      threatLevel: 'Threat Level',
+      aiConfidence: 'AI Confidence',
+      securityAnalysis: 'Security Analysis',
+      realWorldImpact: 'Real-World Impact',
+      recommendedActions: 'Recommended Actions',
     },
   },
   hi: {
@@ -206,6 +241,9 @@ const translations: Record<SupportedLanguage, TranslationStrings> = {
       submit: 'जमा करें',
       save: 'सहेजें',
       close: 'बंद करें',
+      resetSession: 'सत्र रीसेट करें',
+      practiceOnDevice: 'अपने डिवाइस पर अभ्यास करें',
+      sendToMobile: 'मोबाइल पर भेजें',
     },
     nav: {
       dashboard: 'डैशबोर्ड',
@@ -215,11 +253,13 @@ const translations: Record<SupportedLanguage, TranslationStrings> = {
       logout: 'लॉग आउट',
     },
     scenarios: {
-      title: 'हमला सिम्युलेटर',
+      title: 'साइबर हमला सिम्युलेटर',
+      subtitle: 'एंटरप्राइज़-ग्रेड प्रशिक्षण',
       difficulty: 'कठिनाई',
       easy: 'आसान',
       medium: 'मध्यम',
       hard: 'कठिन',
+      mixed: 'मिश्रित',
       score: 'स्कोर',
       accuracy: 'सटीकता',
       correct: 'सही!',
@@ -237,7 +277,11 @@ const translations: Record<SupportedLanguage, TranslationStrings> = {
       redFlags: 'चेतावनी संकेत',
       trustIndicators: 'विश्वास संकेतक',
       telegramBlocked: 'ज्ञात धोखाधड़ी पैटर्न पाया गया',
-      telegramBlockedDesc: 'यह इंटरैक्शन ब्लॉक कर दिया गया है। यह एक ज्ञात टेलीग्राम स्कैम पैटर्न है।',
+      telegramBlockedDesc: 'यह इंटरैक्शन ब्लॉक कर दिया गया है।',
+      scenarioType: 'परिदृश्य प्रकार',
+      explanation: 'व्याख्या',
+      thisWasPhishing: 'यह फ़िशिंग प्रयास था',
+      thisWasLegitimate: 'यह वैध था',
     },
     training: {
       title: 'प्रशिक्षण केंद्र',
@@ -261,12 +305,19 @@ const translations: Record<SupportedLanguage, TranslationStrings> = {
       completeQuizFirst: 'मॉड्यूल पूर्णता अनलॉक करने के लिए प्रश्नोत्तरी पूरी करें',
       modulesCompleted: 'मॉड्यूल पूर्ण',
       overallProgress: 'समग्र प्रगति',
+      questionOf: 'प्रश्न {current} का {total}',
+      yourAnswer: 'आपका उत्तर',
+      correctAnswer: 'सही उत्तर',
+      continueBtn: 'जारी रखें',
     },
     email: {
       sendToDevice: 'अपने डिवाइस पर भेजें',
       enterEmail: 'अपना ईमेल पता दर्ज करें',
       emailSent: 'सिमुलेशन ईमेल भेजा गया! अपना इनबॉक्स जांचें।',
       emailError: 'ईमेल भेजने में विफल। कृपया पुनः प्रयास करें।',
+      practiceTitle: 'अपने डिवाइस पर अभ्यास करें',
+      practiceDesc: 'मोबाइल प्रशिक्षण के लिए यह परिदृश्य अपने ईमेल पर प्राप्त करें',
+      checkInbox: 'अपना इनबॉक्स जांचें',
     },
     aiInsight: {
       hintMode: 'संकेत मोड',
@@ -277,7 +328,14 @@ const translations: Record<SupportedLanguage, TranslationStrings> = {
       validateModeDesc: 'समझाएं कि आपका उत्तर सही या गलत क्यों था',
       getHint: 'संकेत लें',
       getGuidance: 'मुझे मार्गदर्शन करें',
-      validateAnswer: 'मेरा उत्तर समझाएं',
+      validateAnswer: 'उत्तर समझाएं',
+    },
+    analysis: {
+      threatLevel: 'खतरे का स्तर',
+      aiConfidence: 'AI विश्वास',
+      securityAnalysis: 'सुरक्षा विश्लेषण',
+      realWorldImpact: 'वास्तविक दुनिया प्रभाव',
+      recommendedActions: 'अनुशंसित कार्रवाइयां',
     },
   },
   es: {
@@ -292,6 +350,9 @@ const translations: Record<SupportedLanguage, TranslationStrings> = {
       submit: 'Enviar',
       save: 'Guardar',
       close: 'Cerrar',
+      resetSession: 'Reiniciar Sesión',
+      practiceOnDevice: 'Practicar en tu Dispositivo',
+      sendToMobile: 'Enviar a Móvil',
     },
     nav: {
       dashboard: 'Panel',
@@ -301,11 +362,13 @@ const translations: Record<SupportedLanguage, TranslationStrings> = {
       logout: 'Cerrar sesión',
     },
     scenarios: {
-      title: 'Simulador de Ataques',
+      title: 'Simulador de Ataques Cibernéticos',
+      subtitle: 'Entrenamiento de nivel empresarial',
       difficulty: 'Dificultad',
       easy: 'Fácil',
       medium: 'Medio',
       hard: 'Difícil',
+      mixed: 'Mixto',
       score: 'Puntuación',
       accuracy: 'Precisión',
       correct: '¡Correcto!',
@@ -323,7 +386,11 @@ const translations: Record<SupportedLanguage, TranslationStrings> = {
       redFlags: 'Señales de Alerta',
       trustIndicators: 'Indicadores de Confianza',
       telegramBlocked: 'Patrón de Fraude Conocido Detectado',
-      telegramBlockedDesc: 'Esta interacción ha sido bloqueada. Es un patrón conocido de estafa de Telegram.',
+      telegramBlockedDesc: 'Esta interacción ha sido bloqueada.',
+      scenarioType: 'Tipo de Escenario',
+      explanation: 'Explicación',
+      thisWasPhishing: 'Esto era un intento de phishing',
+      thisWasLegitimate: 'Esto era legítimo',
     },
     training: {
       title: 'Centro de Entrenamiento',
@@ -347,12 +414,19 @@ const translations: Record<SupportedLanguage, TranslationStrings> = {
       completeQuizFirst: 'Completa el cuestionario para desbloquear la finalización del módulo',
       modulesCompleted: 'módulos completados',
       overallProgress: 'Progreso General',
+      questionOf: 'Pregunta {current} de {total}',
+      yourAnswer: 'Tu Respuesta',
+      correctAnswer: 'Respuesta Correcta',
+      continueBtn: 'Continuar',
     },
     email: {
       sendToDevice: 'Enviar a tu Dispositivo',
       enterEmail: 'Ingresa tu correo electrónico',
       emailSent: '¡Correo de simulación enviado! Revisa tu bandeja de entrada.',
       emailError: 'Error al enviar correo. Por favor, inténtalo de nuevo.',
+      practiceTitle: 'Practica en tu Dispositivo',
+      practiceDesc: 'Recibe este escenario en tu correo para entrenamiento móvil',
+      checkInbox: 'Revisa tu bandeja',
     },
     aiInsight: {
       hintMode: 'Modo Pista',
@@ -363,7 +437,14 @@ const translations: Record<SupportedLanguage, TranslationStrings> = {
       validateModeDesc: 'Explica por qué tu respuesta fue correcta o incorrecta',
       getHint: 'Obtener Pista',
       getGuidance: 'Guíame',
-      validateAnswer: 'Explica Mi Respuesta',
+      validateAnswer: 'Explicar Respuesta',
+    },
+    analysis: {
+      threatLevel: 'Nivel de Amenaza',
+      aiConfidence: 'Confianza IA',
+      securityAnalysis: 'Análisis de Seguridad',
+      realWorldImpact: 'Impacto en el Mundo Real',
+      recommendedActions: 'Acciones Recomendadas',
     },
   },
   fr: {
@@ -378,6 +459,9 @@ const translations: Record<SupportedLanguage, TranslationStrings> = {
       submit: 'Soumettre',
       save: 'Sauvegarder',
       close: 'Fermer',
+      resetSession: 'Réinitialiser Session',
+      practiceOnDevice: 'Pratiquer sur Votre Appareil',
+      sendToMobile: 'Envoyer au Mobile',
     },
     nav: {
       dashboard: 'Tableau de bord',
@@ -387,11 +471,13 @@ const translations: Record<SupportedLanguage, TranslationStrings> = {
       logout: 'Déconnexion',
     },
     scenarios: {
-      title: 'Simulateur d\'Attaques',
+      title: 'Simulateur d\'Attaques Cyber',
+      subtitle: 'Formation de niveau entreprise',
       difficulty: 'Difficulté',
       easy: 'Facile',
       medium: 'Moyen',
       hard: 'Difficile',
+      mixed: 'Mixte',
       score: 'Score',
       accuracy: 'Précision',
       correct: 'Correct !',
@@ -409,7 +495,11 @@ const translations: Record<SupportedLanguage, TranslationStrings> = {
       redFlags: 'Signaux d\'Alerte',
       trustIndicators: 'Indicateurs de Confiance',
       telegramBlocked: 'Modèle de Fraude Connu Détecté',
-      telegramBlockedDesc: 'Cette interaction a été bloquée. C\'est un modèle d\'arnaque Telegram connu.',
+      telegramBlockedDesc: 'Cette interaction a été bloquée.',
+      scenarioType: 'Type de Scénario',
+      explanation: 'Explication',
+      thisWasPhishing: 'C\'était une tentative de phishing',
+      thisWasLegitimate: 'C\'était légitime',
     },
     training: {
       title: 'Centre de Formation',
@@ -433,12 +523,19 @@ const translations: Record<SupportedLanguage, TranslationStrings> = {
       completeQuizFirst: 'Terminez le quiz pour débloquer la complétion du module',
       modulesCompleted: 'modules terminés',
       overallProgress: 'Progrès Global',
+      questionOf: 'Question {current} sur {total}',
+      yourAnswer: 'Votre Réponse',
+      correctAnswer: 'Réponse Correcte',
+      continueBtn: 'Continuer',
     },
     email: {
       sendToDevice: 'Envoyer à Votre Appareil',
       enterEmail: 'Entrez votre adresse e-mail',
       emailSent: 'E-mail de simulation envoyé ! Vérifiez votre boîte de réception.',
       emailError: 'Échec de l\'envoi de l\'e-mail. Veuillez réessayer.',
+      practiceTitle: 'Pratiquez sur Votre Appareil',
+      practiceDesc: 'Recevez ce scénario par e-mail pour formation mobile',
+      checkInbox: 'Vérifiez votre boîte de réception',
     },
     aiInsight: {
       hintMode: 'Mode Indice',
@@ -449,7 +546,14 @@ const translations: Record<SupportedLanguage, TranslationStrings> = {
       validateModeDesc: 'Expliquez pourquoi votre réponse était correcte ou incorrecte',
       getHint: 'Obtenir un Indice',
       getGuidance: 'Guidez-moi',
-      validateAnswer: 'Expliquer Ma Réponse',
+      validateAnswer: 'Expliquer Réponse',
+    },
+    analysis: {
+      threatLevel: 'Niveau de Menace',
+      aiConfidence: 'Confiance IA',
+      securityAnalysis: 'Analyse de Sécurité',
+      realWorldImpact: 'Impact Réel',
+      recommendedActions: 'Actions Recommandées',
     },
   },
   de: {
@@ -464,6 +568,9 @@ const translations: Record<SupportedLanguage, TranslationStrings> = {
       submit: 'Absenden',
       save: 'Speichern',
       close: 'Schließen',
+      resetSession: 'Sitzung Zurücksetzen',
+      practiceOnDevice: 'Auf Ihrem Gerät Üben',
+      sendToMobile: 'An Handy Senden',
     },
     nav: {
       dashboard: 'Dashboard',
@@ -473,11 +580,13 @@ const translations: Record<SupportedLanguage, TranslationStrings> = {
       logout: 'Abmelden',
     },
     scenarios: {
-      title: 'Angriffssimulator',
+      title: 'Cyber-Angriff-Simulator',
+      subtitle: 'Unternehmensweite Schulung',
       difficulty: 'Schwierigkeit',
       easy: 'Einfach',
       medium: 'Mittel',
       hard: 'Schwer',
+      mixed: 'Gemischt',
       score: 'Punktzahl',
       accuracy: 'Genauigkeit',
       correct: 'Richtig!',
@@ -491,22 +600,26 @@ const translations: Record<SupportedLanguage, TranslationStrings> = {
       aiInsight: 'KI-Einblick',
       hint: 'Hinweis',
       guidedReasoning: 'Geführtes Denken',
-      validateAnswer: 'Antwort validieren',
+      validateAnswer: 'Antwort Validieren',
       redFlags: 'Warnzeichen',
       trustIndicators: 'Vertrauensindikatoren',
-      telegramBlocked: 'Bekanntes Betrugsmuster erkannt',
-      telegramBlockedDesc: 'Diese Interaktion wurde blockiert. Dies ist ein bekanntes Telegram-Betrugsmuster.',
+      telegramBlocked: 'Bekanntes Betrugsmuster Erkannt',
+      telegramBlockedDesc: 'Diese Interaktion wurde blockiert.',
+      scenarioType: 'Szenariotyp',
+      explanation: 'Erklärung',
+      thisWasPhishing: 'Dies war ein Phishing-Versuch',
+      thisWasLegitimate: 'Dies war legitim',
     },
     training: {
       title: 'Schulungszentrum',
       modules: 'Module',
       progress: 'Fortschritt',
-      complete: 'Als abgeschlossen markieren',
+      complete: 'Als Abgeschlossen Markieren',
       quiz: 'Quiz',
-      passRequired: '70% zum Bestehen erforderlich',
-      quizPassed: 'Quiz bestanden!',
-      quizFailed: 'Quiz nicht bestanden',
-      tryAgain: 'Überprüfen Sie das Material und versuchen Sie es erneut.',
+      passRequired: '70% erforderlich zum Bestehen',
+      quizPassed: 'Quiz Bestanden!',
+      quizFailed: 'Quiz Nicht Bestanden',
+      tryAgain: 'Material überprüfen und erneut versuchen.',
       moduleComplete: 'Modul Abgeschlossen',
       completed: 'Abgeschlossen',
       learningContent: 'Lerninhalt',
@@ -516,26 +629,40 @@ const translations: Record<SupportedLanguage, TranslationStrings> = {
       takeQuiz: 'Quiz Starten',
       nextModule: 'Nächstes Modul',
       markComplete: 'Als Abgeschlossen Markieren (+50 XP)',
-      completeQuizFirst: 'Schließen Sie das Quiz ab um den Modulabschluss freizuschalten',
+      completeQuizFirst: 'Schließen Sie das Quiz ab, um den Modulabschluss freizuschalten',
       modulesCompleted: 'Module abgeschlossen',
       overallProgress: 'Gesamtfortschritt',
+      questionOf: 'Frage {current} von {total}',
+      yourAnswer: 'Ihre Antwort',
+      correctAnswer: 'Richtige Antwort',
+      continueBtn: 'Fortfahren',
     },
     email: {
-      sendToDevice: 'An Ihr Gerät senden',
+      sendToDevice: 'An Ihr Gerät Senden',
       enterEmail: 'Geben Sie Ihre E-Mail-Adresse ein',
       emailSent: 'Simulations-E-Mail gesendet! Überprüfen Sie Ihren Posteingang.',
       emailError: 'E-Mail konnte nicht gesendet werden. Bitte versuchen Sie es erneut.',
+      practiceTitle: 'Auf Ihrem Gerät Üben',
+      practiceDesc: 'Erhalten Sie dieses Szenario per E-Mail für mobiles Training',
+      checkInbox: 'Überprüfen Sie Ihren Posteingang',
     },
     aiInsight: {
-      hintMode: 'Hinweismodus',
+      hintMode: 'Hinweis-Modus',
       hintModeDesc: 'Erhalten Sie subtile Hinweise zu verdächtigen Indikatoren',
       guidedMode: 'Geführtes Denken',
-      guidedModeDesc: 'Schrittweise Analysehilfe',
-      validateMode: 'Antwortvalidierung',
+      guidedModeDesc: 'Schritt-für-Schritt Analysehilfe',
+      validateMode: 'Antwort-Validierung',
       validateModeDesc: 'Erklären Sie, warum Ihre Antwort richtig oder falsch war',
-      getHint: 'Hinweis erhalten',
-      getGuidance: 'Führe mich',
-      validateAnswer: 'Meine Antwort erklären',
+      getHint: 'Hinweis Erhalten',
+      getGuidance: 'Führe Mich',
+      validateAnswer: 'Antwort Erklären',
+    },
+    analysis: {
+      threatLevel: 'Bedrohungsstufe',
+      aiConfidence: 'KI-Vertrauen',
+      securityAnalysis: 'Sicherheitsanalyse',
+      realWorldImpact: 'Realer Einfluss',
+      recommendedActions: 'Empfohlene Maßnahmen',
     },
   },
 };
@@ -544,16 +671,17 @@ export const getTranslations = (lang: SupportedLanguage): TranslationStrings => 
   return translations[lang] || translations.en;
 };
 
-// Get language from localStorage
 export const getStoredLanguage = (): SupportedLanguage => {
-  const stored = localStorage.getItem('app_language');
-  if (stored && SUPPORTED_LANGUAGES.some(l => l.code === stored)) {
+  if (typeof window === 'undefined') return 'en';
+  const stored = localStorage.getItem('app-language');
+  if (stored && ['en', 'hi', 'es', 'fr', 'de'].includes(stored)) {
     return stored as SupportedLanguage;
   }
   return 'en';
 };
 
-// Set language in localStorage
 export const setStoredLanguage = (lang: SupportedLanguage): void => {
-  localStorage.setItem('app_language', lang);
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('app-language', lang);
+  }
 };
