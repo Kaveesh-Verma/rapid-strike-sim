@@ -1,5 +1,14 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 
+// Approved test emails for hackathon demo
+const APPROVED_EMAILS = [
+  'kaveeshverma3@gmail.com',
+  // Add judges' emails here
+  'judge1@example.com',
+  'judge2@example.com',
+  'judge3@example.com',
+];
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method === 'OPTIONS') {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -24,6 +33,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return res.status(400).json({ error: 'Invalid email address' });
+    }
+
+    // For hackathon: check if email is approved (can be removed once domain is verified)
+    const isApprovedEmail = APPROVED_EMAILS.some(approved => 
+      email.toLowerCase() === approved.toLowerCase()
+    );
+    
+    if (!isApprovedEmail) {
+      return res.status(400).json({ 
+        error: `Email not approved for testing. Approved emails: ${APPROVED_EMAILS.join(', ')}. Once domain verification is complete, any email can be used.` 
+      });
     }
 
     // Call Resend API
