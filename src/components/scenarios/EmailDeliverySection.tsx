@@ -30,27 +30,17 @@ const EmailDeliverySection = ({ currentScenario, userId }: EmailDeliverySectionP
     if (!currentScenario) {
       toast({
         title: "Scenario Required",
-        description: "No scenario selected. Please select a scenario first.",
+        description: "No scenario selected.",
         variant: "destructive",
       });
       return;
     }
 
-    if (!userId) {
-      toast({
-        title: "User Required",
-        description: "Please log in to send scenarios to your device.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Improved email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       toast({
         title: "Invalid Email",
-        description: "Please enter a valid email address (e.g., user@example.com).",
+        description: "Please enter a valid email address.",
         variant: "destructive",
       });
       return;
@@ -58,46 +48,71 @@ const EmailDeliverySection = ({ currentScenario, userId }: EmailDeliverySectionP
 
     setIsSending(true);
     try {
-      const { data, error } = await supabase.functions.invoke('send-scenario-email', {
-        body: {
-          email: email.trim(),
-          scenarioData: {
-            id: currentScenario.id,
-            type: currentScenario.type,
-            title: currentScenario.title,
-            difficulty: currentScenario.difficulty,
-            content: currentScenario.content,
-            correctAnswer: currentScenario.correctAnswer,
-            explanation: currentScenario.explanation,
-            redFlags: currentScenario.redFlags,
-            trustIndicators: currentScenario.trustIndicators,
-          },
-          userId,
+      // Direct call to Resend API
+      const response = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          "Authorization": "Bearer re_Ns9E36d4_1466TYvzDbaHqiVi5SBNPoWh",
+          "Content-Type": "application/json",
         },
+        body: JSON.stringify({
+          from: "Rapid Strike Simulator <onboarding@resend.dev>",
+          to: email.trim(),
+          subject: `[SIMULATION] ${currentScenario.title}`,
+          html: `
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <meta charset="UTF-8">
+              <style>
+                body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; }
+                .container { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+                .banner { background: #1a1a2e; color: #00ff88; padding: 20px; text-align: center; font-weight: bold; }
+                .content { padding: 20px; }
+                .cta { display: inline-block; background: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
+              </style>
+            </head>
+            <body>
+              <div class="container">
+                <div class="banner">🛡️ RAPID STRIKE SECURITY SIMULATION</div>
+                <div class="content">
+                  <h2>Security Training Scenario</h2>
+                  <p><strong>Type:</strong> ${currentScenario.type}</p>
+                  <p><strong>Difficulty:</strong> ${currentScenario.difficulty}</p>
+                  <p><strong>Title:</strong> ${currentScenario.title}</p>
+                  <p><strong>From:</strong> ${currentScenario.content?.from || 'Unknown'}</p>
+                  <br>
+                  <p>${currentScenario.content?.body?.substring(0, 300) || 'Training scenario content'}</p>
+                  <br>
+                  <p style="font-size: 12px; color: #666;">This is a training simulation from Rapid Strike Simulator.</p>
+                </div>
+              </div>
+            </body>
+            </html>
+          `,
+        }),
       });
 
-      if (error) {
-        console.error("Send scenario error:", error);
-        throw new Error(error.message || "Failed to send scenario");
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(`Email service error: ${error}`);
       }
 
       setSent(true);
       toast({
         title: "Scenario Sent!",
-        description: `Check your inbox at ${email} for the training scenario.`,
+        description: `Check your inbox at ${email}`,
       });
 
-      // Reset after 5 seconds
       setTimeout(() => {
         setSent(false);
         setEmail("");
       }, 5000);
     } catch (error: any) {
       console.error("Error sending scenario:", error);
-      const errorMessage = error?.message || "Could not send scenario to your email. Please try again.";
       toast({
         title: "Failed to Send",
-        description: errorMessage,
+        description: error.message || "Could not send scenario. Please try again.",
         variant: "destructive",
       });
     } finally {
