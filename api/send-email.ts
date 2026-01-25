@@ -34,7 +34,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Rapid Strike Simulator <onboarding@resend.dev>',
+        from: 'Rapid Strike Simulator <noreply@rapidcapture.net>',
         to: email,
         subject: `[SIMULATION] ${subject}`,
         html: html,

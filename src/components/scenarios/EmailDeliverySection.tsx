@@ -93,7 +93,14 @@ const EmailDeliverySection = ({ currentScenario, userId }: EmailDeliverySectionP
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Failed to send email");
+        let errorMsg = error.error || "Failed to send email";
+        
+        // Friendly error messages
+        if (errorMsg.includes("only send testing emails")) {
+          errorMsg = `Please use your registered email: kaveeshverma3@gmail.com\n\nFor production, verify a domain at resend.com/domains`;
+        }
+        
+        throw new Error(errorMsg);
       }
 
       setSent(true);
@@ -172,6 +179,8 @@ const EmailDeliverySection = ({ currentScenario, userId }: EmailDeliverySectionP
 
       <p className="text-gray-600 text-xs font-mono mt-3">
         📱 You'll receive a link to complete this scenario on your phone or tablet. Great for realistic mobile phishing practice!
+        <br/>
+        <span className="text-yellow-600 mt-2 block">💡 Note: Use your registered email address (kaveeshverma3@gmail.com) for testing.</span>
       </p>
     </div>
   );
