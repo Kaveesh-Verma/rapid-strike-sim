@@ -91,11 +91,11 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     // Build scenario link
-    const appUrl = Deno.env.get("APP_URL") || "https://rapid-strike-sim.vercel.app";
+    const appUrl = "https://rapid-strike-sim-6zo2mpkusaqvmyduVzou7wbnaTRD.vercel.app" || Deno.env.get("APP_URL");
     const scenarioLink = `${appUrl}/scenario/${token}`;
 
     // Send email using Resend API
-    const resendApiKey = Deno.env.get("RESEND_API_KEY");
+    const resendApiKey = "re_Ns9E36d4_1466TYvzDbaHqiVi5SBNPoWh" || Deno.env.get("RESEND_API_KEY");
     if (!resendApiKey) {
       throw new Error("RESEND_API_KEY not configured");
     }
