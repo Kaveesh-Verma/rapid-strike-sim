@@ -18,21 +18,39 @@ const EmailDeliverySection = ({ currentScenario, userId }: EmailDeliverySectionP
   const [sent, setSent] = useState(false);
 
   const handleSendToDevice = async () => {
-    if (!email || !currentScenario || !userId) {
+    if (!email) {
       toast({
-        title: "Error",
+        title: "Email Required",
         description: "Please enter a valid email address.",
         variant: "destructive",
       });
       return;
     }
 
-    // Basic email validation
+    if (!currentScenario) {
+      toast({
+        title: "Scenario Required",
+        description: "No scenario selected. Please select a scenario first.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!userId) {
+      toast({
+        title: "User Required",
+        description: "Please log in to send scenarios to your device.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Improved email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       toast({
         title: "Invalid Email",
-        description: "Please enter a valid email address.",
+        description: "Please enter a valid email address (e.g., user@example.com).",
         variant: "destructive",
       });
       return;
@@ -42,7 +60,7 @@ const EmailDeliverySection = ({ currentScenario, userId }: EmailDeliverySectionP
     try {
       const { data, error } = await supabase.functions.invoke('send-scenario-email', {
         body: {
-          email,
+          email: email.trim(),
           scenarioData: {
             id: currentScenario.id,
             type: currentScenario.type,
@@ -58,12 +76,15 @@ const EmailDeliverySection = ({ currentScenario, userId }: EmailDeliverySectionP
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Send scenario error:", error);
+        throw new Error(error.message || "Failed to send scenario");
+      }
 
       setSent(true);
       toast({
         title: "Scenario Sent!",
-        description: "Check your email to practice on your device.",
+        description: `Check your inbox at ${email} for the training scenario.`,
       });
 
       // Reset after 5 seconds
@@ -71,11 +92,12 @@ const EmailDeliverySection = ({ currentScenario, userId }: EmailDeliverySectionP
         setSent(false);
         setEmail("");
       }, 5000);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error sending scenario:", error);
+      const errorMessage = error?.message || "Could not send scenario to your email. Please try again.";
       toast({
         title: "Failed to Send",
-        description: "Could not send scenario to your email. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
