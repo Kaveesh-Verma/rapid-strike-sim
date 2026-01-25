@@ -48,17 +48,15 @@ const EmailDeliverySection = ({ currentScenario, userId }: EmailDeliverySectionP
 
     setIsSending(true);
     try {
-      // Direct call to Resend API
-      const response = await fetch("https://api.resend.com/emails", {
+      // Call our API route instead of calling Resend directly
+      const response = await fetch("/api/send-email", {
         method: "POST",
         headers: {
-          "Authorization": "Bearer re_Ns9E36d4_1466TYvzDbaHqiVi5SBNPoWh",
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          from: "Rapid Strike Simulator <onboarding@resend.dev>",
-          to: email.trim(),
-          subject: `[SIMULATION] ${currentScenario.title}`,
+          email: email.trim(),
+          subject: currentScenario.title,
           html: `
             <!DOCTYPE html>
             <html>
@@ -94,8 +92,8 @@ const EmailDeliverySection = ({ currentScenario, userId }: EmailDeliverySectionP
       });
 
       if (!response.ok) {
-        const error = await response.text();
-        throw new Error(`Email service error: ${error}`);
+        const error = await response.json();
+        throw new Error(error.error || "Failed to send email");
       }
 
       setSent(true);
