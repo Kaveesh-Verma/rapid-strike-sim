@@ -28,16 +28,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const { email, subject, html } = req.body;
 
     if (!email || !subject || !html) {
-      return res.status(400).json({ error: 'Missing required fields' });
-    }
-
-    // Validate email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return res.status(400).json({ error: 'Invalid email address' });
-    }
-
-    // For hackathon: check if email is approved (can be removed once domain is verified)
+      // If APPROVED_EMAILS is provided, restrict sending to that list.
+      if (APPROVED_EMAILS.length > 0) {
+        const isApprovedEmail = APPROVED_EMAILS.some((approved) =>
+          email.toLowerCase() === approved.toLowerCase()
+        );
+        if (!isApprovedEmail) {
+          return res.status(400).json({
+            error: `Email not approved for testing. Approved emails: ${APPROVED_EMAILS.join(', ')}.`,
+          });
+        }
+      }
     const isApprovedEmail = APPROVED_EMAILS.some(approved => 
       email.toLowerCase() === approved.toLowerCase()
     );
@@ -52,16 +53,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer re_Ns9E36d4_1466TYvzDbaHqiVi5SBNPoWh`,
+            'Authorization': `Bearer ${RESEND_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Rapid Strike Simulator <noreply@rapidcapture.net>',
+            from: `Rapid Strike Simulator <${FROM_EMAIL}>`,
         to: email,
         subject: `[SIMULATION] ${subject}`,
         html: html,
       }),
     });
+        if (!RESEND_API_KEY) {
+          console.error('RESEND_API_KEY not configured');
+          return res.status(500).json({ error: 'Email service not configured' });
+        }
 
     if (!response.ok) {
       const errorData = await response.json();

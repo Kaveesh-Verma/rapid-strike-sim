@@ -42,13 +42,24 @@ const handler = async (req: Request): Promise<Response> => {
     // Extract details
     const subject = scenarioData.content?.subject || scenarioData.title || "Security Training Scenario";
     const token = crypto.randomUUID();
-    const resendApiKey = "re_Ns9E36d4_1466TYvzDbaHqiVi5SBNPoWh";
-    const appUrl = "https://rapid-strike-sim-6zo2mpkusaqvmyduVzou7wbnaTRD.vercel.app";
+
+    const resendApiKey = Deno.env.get("RESEND_API_KEY");
+    const appUrl = Deno.env.get("APP_URL") || "https://rapid-strike-sim.vercel.app";
+    const fromEmail = Deno.env.get("FROM_EMAIL") || "noreply@rapidcapture.net";
+
+    if (!resendApiKey) {
+      console.error("RESEND_API_KEY not configured");
+      return new Response(
+        JSON.stringify({ error: "Email service not configured" }),
+        { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
     const scenarioLink = `${appUrl}/scenario/${token}`;
 
     // Send email via Resend
     const emailPayload = {
-      from: "Rapid Strike Simulator <onboarding@resend.dev>",
+      from: `Rapid Strike Simulator <${fromEmail}>`,
       to: email,
       subject: `[SIMULATION] ${subject}`,
       html: `
