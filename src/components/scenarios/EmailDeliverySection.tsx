@@ -18,18 +18,18 @@ const EmailDeliverySection = ({ currentScenario, userId }: EmailDeliverySectionP
   const [sent, setSent] = useState(false);
 
   const handleSendToDevice = async () => {
-    // Validate environment variables exist
-    const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
-    const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
-    const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+    // Use environment variables or fallback to hardcoded values
+    const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || "676OA2RU506_7A65U";
+    const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID || "service_8nvmjt9";
+    const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || "template_q9rxedj";
 
     console.log("Environment Check:", {
-      publicKeyExists: !!publicKey,
-      serviceIdExists: !!serviceId,
-      templateIdExists: !!templateId,
-      publicKey: publicKey?.substring(0, 20) + "...",
-      serviceId,
-      templateId,
+      publicKeyFromEnv: import.meta.env.VITE_EMAILJS_PUBLIC_KEY,
+      serviceIdFromEnv: import.meta.env.VITE_EMAILJS_SERVICE_ID,
+      templateIdFromEnv: import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+      publicKeyUsing: publicKey,
+      serviceIdUsing: serviceId,
+      templateIdUsing: templateId,
     });
 
     if (!publicKey || !serviceId || !templateId) {
