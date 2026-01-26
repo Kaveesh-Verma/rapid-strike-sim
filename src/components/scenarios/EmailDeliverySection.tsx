@@ -2,9 +2,9 @@ import { useState } from "react";
 import { Mail, Send, Smartphone, CheckCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Scenario } from "@/lib/scenarioGenerator";
+import emailjs from "emailjs-com";
 
 interface EmailDeliverySectionProps {
   currentScenario: Scenario | null;
@@ -16,6 +16,9 @@ const EmailDeliverySection = ({ currentScenario, userId }: EmailDeliverySectionP
   const [email, setEmail] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [sent, setSent] = useState(false);
+
+  // Initialize EmailJS on mount
+  emailjs.init(import.meta.env.VITE_EMAILJS_PUBLIC_KEY);
 
   const handleSendToDevice = async () => {
     if (!email) {
@@ -48,60 +51,21 @@ const EmailDeliverySection = ({ currentScenario, userId }: EmailDeliverySectionP
 
     setIsSending(true);
     try {
-      // Call our API route instead of calling Resend directly
-      const response = await fetch("/api/send-email", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: email.trim(),
-          subject: currentScenario.title,
-          html: `
-            <!DOCTYPE html>
-            <html>
-            <head>
-              <meta charset="UTF-8">
-              <style>
-                body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; }
-                .container { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-                .banner { background: #1a1a2e; color: #00ff88; padding: 20px; text-align: center; font-weight: bold; }
-                .content { padding: 20px; }
-                .cta { display: inline-block; background: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
-              </style>
-            </head>
-            <body>
-              <div class="container">
-                <div class="banner">🛡️ RAPID STRIKE SECURITY SIMULATION</div>
-                <div class="content">
-                  <h2>Security Training Scenario</h2>
-                  <p><strong>Type:</strong> ${currentScenario.type}</p>
-                  <p><strong>Difficulty:</strong> ${currentScenario.difficulty}</p>
-                  <p><strong>Title:</strong> ${currentScenario.title}</p>
-                  <p><strong>From:</strong> ${currentScenario.content?.from || 'Unknown'}</p>
-                  <br>
-                  <p>${currentScenario.content?.body?.substring(0, 300) || 'Training scenario content'}</p>
-                  <br>
-                  <p style="font-size: 12px; color: #666;">This is a training simulation from Rapid Strike Simulator.</p>
-                </div>
-              </div>
-            </body>
-            </html>
-          `,
-        }),
-      });
+      const templateParams = {
+        to_email: email.trim(),
+        scenario_title: currentScenario.title,
+        scenario_type: currentScenario.type,
+        scenario_difficulty: currentScenario.difficulty,
+        scenario_from: currentScenario.content?.from || 'Unknown',
+        scenario_body: (currentScenario.content?.body || 'Training scenario content').substring(0, 300),
+        scenario_link: `${window.location.origin}/scenarios`,
+      };
 
-      if (!response.ok) {
-        const error = await response.json();
-        let errorMsg = error.error || "Failed to send email";
-        
-        // Friendly error messages
-        if (errorMsg.includes("only send testing emails")) {
-          errorMsg = `Please use your registered email: kaveeshverma3@gmail.com\n\nFor production, verify a domain at resend.com/domains`;
-        }
-        
-        throw new Error(errorMsg);
-      }
+      await emailjs.send(
+        import.meta.env.VITE_EMAILJS_SERVICE_ID,
+        import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+        templateParams
+      );
 
       setSent(true);
       toast({
@@ -180,7 +144,7 @@ const EmailDeliverySection = ({ currentScenario, userId }: EmailDeliverySectionP
       <p className="text-gray-600 text-xs font-mono mt-3">
         📱 You'll receive a link to complete this scenario on your phone or tablet. Great for realistic mobile phishing practice!
         <br/>
-        <span className="text-yellow-600 mt-2 block">💡 Note: Use your registered email address (kaveeshverma3@gmail.com) for testing.</span>
+        <span className="text-green-600 mt-2 block">✓ Powered by EmailJS - emails sent directly to your inbox instantly!</span>
       </p>
     </div>
   );
