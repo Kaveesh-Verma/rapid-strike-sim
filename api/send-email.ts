@@ -1,13 +1,15 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 
-// Approved test emails for hackathon demo
-const APPROVED_EMAILS = [
-  'kaveeshverma3@gmail.com',
-  // Add judges' emails here
-  'judge1@example.com',
-  'judge2@example.com',
-  'judge3@example.com',
+// Approved test emails for hackathon demo.
+// Use the Vercel environment variable `APPROVED_EMAILS` to set a comma-separated list.
+// Example: kaveeshverma3@gmail.com,judge1@example.com,judge2@example.com
+const approvedEnv = process.env.APPROVED_EMAILS || '';
+const DEFAULT_APPROVED = [
+  'kaveeshverma3@gmail.com'
 ];
+const APPROVED_EMAILS = approvedEnv
+  ? approvedEnv.split(',').map((s) => s.trim()).filter(Boolean)
+  : DEFAULT_APPROVED;
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method === 'OPTIONS') {
