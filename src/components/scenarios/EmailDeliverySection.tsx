@@ -60,11 +60,10 @@ const EmailDeliverySection = ({ currentScenario, userId }: EmailDeliverySectionP
 
       const templateParams = {
         to_email: email.trim(),
-        scenario_title: currentScenario.title,
+        name: email.split('@')[0] || 'User', // Extract name from email or use 'User'
+        time: new Date().toLocaleString(),
+        message: `You have received a cybersecurity training scenario: ${currentScenario.title}`,
         scenario_type: currentScenario.type,
-        scenario_difficulty: currentScenario.difficulty,
-        scenario_from: currentScenario.content?.from || 'Unknown',
-        scenario_body: (currentScenario.content?.body || 'Training scenario content').substring(0, 300),
         scenario_link: `${window.location.origin}/scenarios`,
       };
 
